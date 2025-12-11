@@ -1,5 +1,7 @@
 # ✅ Task-in-Browser
 
+![Screenshot do Projeto](screenshot.png)
+
 > Um gerenciador de tarefas poderoso, persistente e sem servidor, contido em um único arquivo HTML.
 
 O **Task-in-Browser** é uma ferramenta de produtividade minimalista projetada para quem precisa de foco e agilidade. Ele roda inteiramente no navegador do cliente (Client-Side), utilizando `localStorage` para persistir seus dados. Não requer instalação, backend ou login.

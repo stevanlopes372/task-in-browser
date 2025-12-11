@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task-in-Browser</title>
+    <style>
+        /* --- ESTILOS CSS --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            padding-top: 50px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 600px; 
+            position: relative; 
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1 {
+            color: #333;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Espalha os botões */
+            width: 100%;
+            position: relative;
+        }
+
+        .badge-id {
+            background-color: #e0e0e0;
+            color: #555;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-family: monospace;
+        }
+
+        /* Botões de Ação */
+        .btn-action {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .btn-nuke {
+            background-color: #ffebee;
+            color: #d32f2f;
+            border-color: #ffcdd2;
+        }
+        .btn-nuke:hover { background-color: #d32f2f; color: white; }
+
+        .btn-menu {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            border-color: #bbdefb;
+        }
+        .btn-menu:hover { background-color: #1976d2; color: white; }
+
+        /* Estilos do Conteúdo Principal */
+        .context-area {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            margin-bottom: 25px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 15px;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.3s;
+            min-height: 80px;
+        }
+        .context-area:focus { border-color: #4CAF50; }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-top: 1px solid #eee;
+            padding-top: 25px;
+        }
+
+        #novoItemInput {
+            flex-grow: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        #novoItemInput:focus { border-color: #4CAF50; }
+
+        #btnAdd {
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #btnAdd:hover { background-color: #45a049; }
+
+        /* Lista */
+        .checklist { list-style: none; padding: 0; margin: 0; }
+        .checklist li {
+            background-color: #fff;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 10px;
+            font-size: 18px;
+            display: flex;
+            align-items: center; 
+            justify-content: space-between;
+            transition: background-color 0.2s;
+        }
+        .checklist li.dragging {
+            opacity: 0.5;
+            background-color: #e8f5e9;
+            border: 2px dashed #4CAF50;
+        }
+        .drag-handle {
+            cursor: grab; color: #ccc; margin-right: 10px; font-size: 20px; user-select: none; padding: 0 5px;
+        }
+        .drag-handle:active { cursor: grabbing; }
+        .task-content { display: flex; align-items: center; flex-grow: 1; }
+        input[type="checkbox"] { transform: scale(1.3); margin-right: 15px; cursor: pointer; }
+        label { cursor: pointer; width: 100%; transition: color 0.3s; }
+        input[type="checkbox"]:checked + label { text-decoration: line-through; color: #aaa; }
+        .btn-delete {
+            background-color: transparent; color: #ff4444; border: 1px solid #ff4444; border-radius: 4px; padding: 5px 10px; margin-left: 10px; cursor: pointer; font-size: 14px; transition: all 0.2s;
+        }
+        .btn-delete:hover { background-color: #ff4444; color: white; }
+
+        /* --- MODAL (JANELA DE PROJETOS) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: none; /* Escondido por padrão */
+            justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white; padding: 25px; border-radius: 10px; width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;
+        }
+        .modal-header h2 { margin: 0; font-size: 20px; color: #333; }
+        .close-modal {
+            background: none; border: none; font-size: 24px; cursor: pointer; color: #999;
+        }
+        .close-modal:hover { color: #333; }
+        
+        #listaProjetos { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; }
+        #listaProjetos li { margin-bottom: 8px; }
+        #listaProjetos a {
+            display: block; padding: 10px; background-color: #f9f9f9; text-decoration: none; color: #333; border-radius: 6px; border: 1px solid #eee; transition: all 0.2s;
+        }
+        #listaProjetos a:hover { background-color: #e3f2fd; border-color: #2196F3; }
+        #listaProjetos a.active { background-color: #e8f5e9; border-color: #4CAF50; font-weight: bold; }
+        
+        .empty-state { text-align: center; color: #999; padding: 20px; font-style: italic; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1 id="tituloPagina">Lista de Tarefas</h1>
+            
+            <div class="header-controls">
+                <button id="btnMenu" class="btn-action btn-menu">
+                    📂 Meus Projetos
+                </button>
+
+                <span id="badgeId" class="badge-id">GERAL</span>
+                
+                <button id="btnNuke" class="btn-action btn-nuke" title="Apagar todos os dados desta lista">
+                    🗑️ Apagar
+                </button>
+            </div>
+        </header>
+
+        <textarea class="context-area" id="contextArea" placeholder="Digite aqui o contexto, observações ou metas para essa lista..."></textarea>
+
+        <div class="input-group">
+            <input type="text" id="novoItemInput" placeholder="O que precisa ser feito?">
+            <button id="btnAdd">Adicionar</button>
+        </div>
+        
+        <ul class="checklist" id="listaTarefas">
+        </ul>
+    </div>
+
+    <div id="modalProjetos" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Navegar entre Listas</h2>
+                <button class="close-modal" id="btnCloseModal">&times;</button>
+            </div>
+            <ul id="listaProjetos">
+                </ul>
+        </div>
+    </div>
+
+    <script>
+        // Elementos Principais
+        const inputCampo = document.getElementById('novoItemInput');
+        const btnAdicionar = document.getElementById('btnAdd');
+        const lista = document.getElementById('listaTarefas');
+        const contextArea = document.getElementById('contextArea');
+        const badgeId = document.getElementById('badgeId');
+        const btnNuke = document.getElementById('btnNuke');
+        
+        // Elementos do Modal
+        const btnMenu = document.getElementById('btnMenu');
+        const modalProjetos = document.getElementById('modalProjetos');
+        const btnCloseModal = document.getElementById('btnCloseModal');
+        const ulProjetos = document.getElementById('listaProjetos');
+
+        // --- 0. LÓGICA DE URL ---
+        function getListId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let id = urlParams.get('id') || urlParams.get('lista');
+            return id ? id : 'geral';
+        }
+
+        const LIST_ID = getListId();
+        
+        badgeId.innerText = LIST_ID;
+        document.title = `Task: ${LIST_ID.toUpperCase()}`;
+
+        // --- 1. PERSISTÊNCIA ---
+        function salvarDados() {
+            localStorage.setItem(`checklist_contexto_${LIST_ID}`, contextArea.value);
+
+            const tarefas = [];
+            const itensLista = lista.querySelectorAll('li');
+
+            itensLista.forEach(li => {
+                const checkbox = li.querySelector('input[type="checkbox"]');
+                const label = li.querySelector('label');
+                
+                tarefas.push({
+                    texto: label.innerText,
+                    concluido: checkbox.checked
+                });
+            });
+
+            localStorage.setItem(`checklist_tarefas_${LIST_ID}`, JSON.stringify(tarefas));
+        }
+
+        // --- 2. DELETAR LISTA ---
+        btnNuke.addEventListener('click', () => {
+            const confirmacao = confirm(`ATENÇÃO: Você tem certeza que deseja apagar a lista "${LIST_ID}"?\n\nIsso não pode ser desfeito.`);
+            if (confirmacao) {
+                localStorage.removeItem(`checklist_contexto_${LIST_ID}`);
+                localStorage.removeItem(`checklist_tarefas_${LIST_ID}`);
+                location.reload();
+            }
+        });
+
+        // --- 3. SISTEMA DE MENU/MODAL (NOVIDADE) ---
+        
+        function abrirMenu() {
+            ulProjetos.innerHTML = ''; // Limpa a lista atual
+            const chaves = Object.keys(localStorage);
+            const projetosEncontrados = new Set(); // Set evita duplicatas
+
+            // Varre o LocalStorage procurando nossas chaves
+            chaves.forEach(chave => {
+                if (chave.startsWith('checklist_tarefas_')) {
+                    const nomeProjeto = chave.replace('checklist_tarefas_', '');
+                    projetosEncontrados.add(nomeProjeto);
+                }
+                // Adiciona também se tiver só contexto (caso raro, mas possível)
+                if (chave.startsWith('checklist_contexto_')) {
+                    const nomeProjeto = chave.replace('checklist_contexto_', '');
+                    projetosEncontrados.add(nomeProjeto);
+                }
+            });
+
+            // Ordena alfabeticamente
+            const arrayProjetos = Array.from(projetosEncontrados).sort();
+
+            if (arrayProjetos.length === 0) {
+                ulProjetos.innerHTML = '<div class="empty-state">Nenhum projeto salvo ainda.</div>';
+            } else {
+                arrayProjetos.forEach(proj => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = `?id=${proj}`; // O link mágico
+                    a.innerText = proj.toUpperCase();
+                    
+                    // Destaca o projeto atual
+                    if (proj === LIST_ID) {
+                        a.classList.add('active');
+                        a.innerText += ' (Atual)';
+                    }
+                    
+                    li.appendChild(a);
+                    ulProjetos.appendChild(li);
+                });
+            }
+
+            modalProjetos.style.display = 'flex';
+        }
+
+        function fecharMenu() {
+            modalProjetos.style.display = 'none';
+        }
+
+        btnMenu.addEventListener('click', abrirMenu);
+        btnCloseModal.addEventListener('click', fecharMenu);
+        
+        // Fecha se clicar fora da janelinha branca
+        modalProjetos.addEventListener('click', (e) => {
+            if (e.target === modalProjetos) fecharMenu();
+        });
+
+
+        // --- 4. CRIAR ELEMENTOS ---
+        function criarElementoVisual(texto, concluido = false) {
+            const novoLi = document.createElement('li');
+            novoLi.setAttribute('draggable', 'true');
+            novoLi.classList.add('draggable-item');
+
+            const dragHandle = document.createElement('span');
+            dragHandle.className = 'drag-handle';
+            dragHandle.innerHTML = '&#8942;&#8942;'; 
+
+            const divConteudo = document.createElement('div');
+            divConteudo.className = 'task-content';
+
+            const idUnico = 'tarefa_' + Date.now() + Math.random(); 
+
+            const novoCheckbox = document.createElement('input');
+            novoCheckbox.type = 'checkbox';
+            novoCheckbox.id = idUnico;
+            novoCheckbox.checked = concluido; 
+            novoCheckbox.addEventListener('change', salvarDados);
+
+            const novaLabel = document.createElement('label');
+            novaLabel.htmlFor = idUnico;
+            novaLabel.innerText = texto;
+
+            divConteudo.appendChild(novoCheckbox);
+            divConteudo.appendChild(novaLabel);
+
+            const btnDelete = document.createElement('button');
+            btnDelete.innerText = '❌'; 
+            btnDelete.className = 'btn-delete';
+            btnDelete.title = 'Excluir tarefa'; 
+            
+            btnDelete.onclick = function() {
+                novoLi.remove();
+                salvarDados(); 
+            };
+
+            novoLi.appendChild(dragHandle);
+            novoLi.appendChild(divConteudo);
+            novoLi.appendChild(btnDelete);
+
+            adicionarEventosDeArrastar(novoLi);
+            lista.appendChild(novoLi);
+        }
+
+        // --- 5. CARREGAR DADOS ---
+        function carregarDados() {
+            const contextoSalvo = localStorage.getItem(`checklist_contexto_${LIST_ID}`);
+            if (contextoSalvo) {
+                contextArea.value = contextoSalvo;
+            }
+
+            const tarefasSalvas = localStorage.getItem(`checklist_tarefas_${LIST_ID}`);
+            if (tarefasSalvas) {
+                const arrayTarefas = JSON.parse(tarefasSalvas);
+                arrayTarefas.forEach(tarefa => {
+                    criarElementoVisual(tarefa.texto, tarefa.concluido);
+                });
+            }
+        }
+
+        // --- 6. ADICIONAR TAREFA ---
+        function adicionarNovaTarefa() {
+            const texto = inputCampo.value;
+            if (texto === "") {
+                alert("Digite uma tarefa!");
+                inputCampo.focus();
+                return;
+            }
+            criarElementoVisual(texto, false); 
+            salvarDados(); 
+            inputCampo.value = '';
+            inputCampo.focus();
+        }
+
+        // --- 7. DRAG AND DROP ---
+        function adicionarEventosDeArrastar(item) {
+            item.addEventListener('dragstart', () => {
+                item.classList.add('dragging');
+            });
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+                salvarDados(); 
+            });
+        }
+
+        lista.addEventListener('dragover', e => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(lista, e.clientY);
+            const draggable = document.querySelector('.dragging');
+            if (afterElement == null) {
+                lista.appendChild(draggable);
+            } else {
+                lista.insertBefore(draggable, afterElement);
+            }
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.draggable-item:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2; 
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        btnAdicionar.addEventListener('click', adicionarNovaTarefa);
+        inputCampo.addEventListener('keypress', function(e) {
+            if(e.key === 'Enter') { adicionarNovaTarefa(); }
+        });
+        contextArea.addEventListener('input', salvarDados);
+
+        carregarDados();
+
+    </script>
+
+</body>
+</html>

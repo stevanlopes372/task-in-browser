@@ -5,37 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task-in-Browser</title>
     <style>
-        /* --- ESTILOS CSS --- */
+        /* --- DEFINIÇÃO DAS CORES (VARIÁVEIS) --- */
+        :root {
+            /* Tema Claro (Padrão) */
+            --bg-body: #f0f2f5;
+            --bg-container: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #555555;
+            --border-color: #dddddd;
+            --input-bg: #ffffff;
+            --item-bg: #ffffff;
+            --item-hover: #fafafa;
+            --accent-color: #4CAF50;
+            --accent-hover: #45a049;
+            --shadow: rgba(0,0,0,0.1);
+            --modal-overlay: rgba(0,0,0,0.5);
+            --danger-bg: #ffebee;
+            --danger-text: #d32f2f;
+            --menu-bg: #e3f2fd;
+            --menu-text: #1976d2;
+            --scroll-track: #f1f1f1;
+            --scroll-thumb: #888;
+        }
+
+        /* Tema Escuro (Ativado via classe no body) */
+        body.dark-mode {
+            --bg-body: #121212;
+            --bg-container: #1e1e1e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border-color: #333333;
+            --input-bg: #2c2c2c;
+            --item-bg: #252525;
+            --item-hover: #2f2f2f;
+            --accent-color: #66bb6a; /* Verde um pouco mais claro para contraste */
+            --accent-hover: #57a05b;
+            --shadow: rgba(0,0,0,0.5);
+            --modal-overlay: rgba(0,0,0,0.8);
+            --danger-bg: #3e2727;
+            --danger-text: #ff8a80;
+            --menu-bg: #1a3b5c;
+            --menu-text: #90caf9;
+            --scroll-track: #2c2c2c;
+            --scroll-thumb: #555;
+        }
+
+        /* --- ESTILOS GERAIS --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
             display: flex;
             justify-content: center;
             padding-top: 50px;
+            transition: background-color 0.3s, color 0.3s; /* Transição suave */
         }
 
         .container {
-            background-color: white;
+            background-color: var(--bg-container);
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px var(--shadow);
             width: 600px; 
             position: relative; 
+            transition: background-color 0.3s;
         }
 
         header {
             text-align: center;
             margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
+            border-bottom: 2px solid var(--border-color);
             padding-bottom: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
 
         h1 {
-            color: #333;
+            color: var(--text-primary);
             margin: 0;
             font-size: 24px;
         }
@@ -43,14 +91,13 @@
         .header-controls {
             display: flex;
             align-items: center;
-            justify-content: space-between; /* Espalha os botões */
+            justify-content: space-between;
             width: 100%;
-            position: relative;
         }
 
         .badge-id {
-            background-color: #e0e0e0;
-            color: #555;
+            background-color: var(--border-color);
+            color: var(--text-secondary);
             padding: 6px 12px;
             border-radius: 12px;
             font-size: 12px;
@@ -74,18 +121,27 @@
         }
 
         .btn-nuke {
-            background-color: #ffebee;
-            color: #d32f2f;
-            border-color: #ffcdd2;
+            background-color: var(--danger-bg);
+            color: var(--danger-text);
+            border-color: var(--danger-bg);
         }
-        .btn-nuke:hover { background-color: #d32f2f; color: white; }
+        .btn-nuke:hover { opacity: 0.8; }
 
         .btn-menu {
-            background-color: #e3f2fd;
-            color: #1976d2;
-            border-color: #bbdefb;
+            background-color: var(--menu-bg);
+            color: var(--menu-text);
+            border-color: var(--menu-bg);
         }
-        .btn-menu:hover { background-color: #1976d2; color: white; }
+        .btn-menu:hover { opacity: 0.8; }
+
+        .btn-theme {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+        .btn-theme:hover { background-color: var(--item-hover); }
 
         /* Estilos do Conteúdo Principal */
         .context-area {
@@ -93,7 +149,9 @@
             box-sizing: border-box;
             padding: 12px;
             margin-bottom: 25px;
-            border: 2px solid #ddd;
+            border: 2px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-primary);
             border-radius: 6px;
             font-family: inherit;
             font-size: 15px;
@@ -102,30 +160,32 @@
             transition: border-color 0.3s;
             min-height: 80px;
         }
-        .context-area:focus { border-color: #4CAF50; }
+        .context-area:focus { border-color: var(--accent-color); }
 
         .input-group {
             display: flex;
             gap: 10px;
             margin-bottom: 25px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid var(--border-color);
             padding-top: 25px;
         }
 
         #novoItemInput {
             flex-grow: 1;
             padding: 12px;
-            border: 2px solid #ddd;
+            border: 2px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-primary);
             border-radius: 6px;
             font-size: 16px;
             outline: none;
             transition: border-color 0.3s;
         }
-        #novoItemInput:focus { border-color: #4CAF50; }
+        #novoItemInput:focus { border-color: var(--accent-color); }
 
         #btnAdd {
             padding: 12px 25px;
-            background-color: #4CAF50;
+            background-color: var(--accent-color);
             color: white;
             border: none;
             border-radius: 6px;
@@ -134,13 +194,14 @@
             cursor: pointer;
             transition: background-color 0.2s;
         }
-        #btnAdd:hover { background-color: #45a049; }
+        #btnAdd:hover { background-color: var(--accent-hover); }
 
         /* Lista */
         .checklist { list-style: none; padding: 0; margin: 0; }
         .checklist li {
-            background-color: #fff;
-            border-bottom: 1px solid #f0f0f0;
+            background-color: var(--item-bg);
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
             padding: 10px;
             font-size: 18px;
             display: flex;
@@ -148,54 +209,66 @@
             justify-content: space-between;
             transition: background-color 0.2s;
         }
+        .checklist li:hover {
+            background-color: var(--item-hover);
+        }
         .checklist li.dragging {
             opacity: 0.5;
-            background-color: #e8f5e9;
-            border: 2px dashed #4CAF50;
+            background-color: var(--item-hover);
+            border: 2px dashed var(--accent-color);
         }
         .drag-handle {
             cursor: grab; color: #ccc; margin-right: 10px; font-size: 20px; user-select: none; padding: 0 5px;
         }
         .drag-handle:active { cursor: grabbing; }
+        
         .task-content { display: flex; align-items: center; flex-grow: 1; }
+        
         input[type="checkbox"] { transform: scale(1.3); margin-right: 15px; cursor: pointer; }
+        
         label { cursor: pointer; width: 100%; transition: color 0.3s; }
-        input[type="checkbox"]:checked + label { text-decoration: line-through; color: #aaa; }
+        input[type="checkbox"]:checked + label { text-decoration: line-through; color: #777; }
+
         .btn-delete {
-            background-color: transparent; color: #ff4444; border: 1px solid #ff4444; border-radius: 4px; padding: 5px 10px; margin-left: 10px; cursor: pointer; font-size: 14px; transition: all 0.2s;
+            background-color: transparent; color: var(--danger-text); border: 1px solid var(--danger-text); border-radius: 4px; padding: 5px 10px; margin-left: 10px; cursor: pointer; font-size: 14px; transition: all 0.2s;
         }
-        .btn-delete:hover { background-color: #ff4444; color: white; }
+        .btn-delete:hover { background-color: var(--danger-text); color: white; }
 
         /* --- MODAL (JANELA DE PROJETOS) --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            display: none; /* Escondido por padrão */
+            background-color: var(--modal-overlay);
+            display: none; 
             justify-content: center; align-items: center;
             z-index: 1000;
         }
         .modal-content {
-            background-color: white; padding: 25px; border-radius: 10px; width: 400px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            background-color: var(--bg-container); padding: 25px; border-radius: 10px; width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            color: var(--text-primary);
         }
         .modal-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;
         }
-        .modal-header h2 { margin: 0; font-size: 20px; color: #333; }
+        .modal-header h2 { margin: 0; font-size: 20px; }
         .close-modal {
-            background: none; border: none; font-size: 24px; cursor: pointer; color: #999;
+            background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary);
         }
-        .close-modal:hover { color: #333; }
+        .close-modal:hover { color: var(--text-primary); }
         
         #listaProjetos { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; }
         #listaProjetos li { margin-bottom: 8px; }
         #listaProjetos a {
-            display: block; padding: 10px; background-color: #f9f9f9; text-decoration: none; color: #333; border-radius: 6px; border: 1px solid #eee; transition: all 0.2s;
+            display: block; padding: 10px; 
+            background-color: var(--item-bg); 
+            text-decoration: none; color: var(--text-primary); 
+            border-radius: 6px; border: 1px solid var(--border-color); 
+            transition: all 0.2s;
         }
-        #listaProjetos a:hover { background-color: #e3f2fd; border-color: #2196F3; }
-        #listaProjetos a.active { background-color: #e8f5e9; border-color: #4CAF50; font-weight: bold; }
+        #listaProjetos a:hover { background-color: var(--item-hover); border-color: var(--accent-color); }
+        #listaProjetos a.active { background-color: var(--menu-bg); border-color: var(--menu-text); font-weight: bold; }
         
-        .empty-state { text-align: center; color: #999; padding: 20px; font-style: italic; }
+        .empty-state { text-align: center; color: var(--text-secondary); padding: 20px; font-style: italic; }
 
     </style>
 </head>
@@ -203,7 +276,12 @@
 
     <div class="container">
         <header>
-            <h1 id="tituloPagina">Lista de Tarefas</h1>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+                <h1 id="tituloPagina">Lista de Tarefas</h1>
+                <button id="btnTheme" class="btn-action btn-theme" title="Alternar Tema Claro/Escuro">
+                    🌙
+                </button>
+            </div>
             
             <div class="header-controls">
                 <button id="btnMenu" class="btn-action btn-menu">
@@ -236,7 +314,7 @@
                 <button class="close-modal" id="btnCloseModal">&times;</button>
             </div>
             <ul id="listaProjetos">
-                </ul>
+            </ul>
         </div>
     </div>
 
@@ -248,6 +326,7 @@
         const contextArea = document.getElementById('contextArea');
         const badgeId = document.getElementById('badgeId');
         const btnNuke = document.getElementById('btnNuke');
+        const btnTheme = document.getElementById('btnTheme'); // Novo botão
         
         // Elementos do Modal
         const btnMenu = document.getElementById('btnMenu');
@@ -261,13 +340,37 @@
             let id = urlParams.get('id') || urlParams.get('lista');
             return id ? id : 'geral';
         }
-
         const LIST_ID = getListId();
         
         badgeId.innerText = LIST_ID;
         document.title = `Task: ${LIST_ID.toUpperCase()}`;
 
-        // --- 1. PERSISTÊNCIA ---
+        // --- 1. LÓGICA DO DARK MODE (NOVO!) ---
+        function carregarTema() {
+            const temaSalvo = localStorage.getItem('task_theme_preference');
+            
+            if (temaSalvo === 'dark') {
+                document.body.classList.add('dark-mode');
+                btnTheme.innerText = '☀️'; // Solzinho
+            } else {
+                btnTheme.innerText = '🌙'; // Lua
+            }
+        }
+
+        btnTheme.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            
+            // Verifica se ficou escuro ou claro para salvar
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('task_theme_preference', 'dark');
+                btnTheme.innerText = '☀️';
+            } else {
+                localStorage.setItem('task_theme_preference', 'light');
+                btnTheme.innerText = '🌙';
+            }
+        });
+
+        // --- 2. PERSISTÊNCIA DADOS ---
         function salvarDados() {
             localStorage.setItem(`checklist_contexto_${LIST_ID}`, contextArea.value);
 
@@ -287,7 +390,7 @@
             localStorage.setItem(`checklist_tarefas_${LIST_ID}`, JSON.stringify(tarefas));
         }
 
-        // --- 2. DELETAR LISTA ---
+        // --- 3. DELETAR LISTA ---
         btnNuke.addEventListener('click', () => {
             const confirmacao = confirm(`ATENÇÃO: Você tem certeza que deseja apagar a lista "${LIST_ID}"?\n\nIsso não pode ser desfeito.`);
             if (confirmacao) {
@@ -297,27 +400,23 @@
             }
         });
 
-        // --- 3. SISTEMA DE MENU/MODAL (NOVIDADE) ---
-        
+        // --- 4. SISTEMA DE MENU/MODAL ---
         function abrirMenu() {
-            ulProjetos.innerHTML = ''; // Limpa a lista atual
+            ulProjetos.innerHTML = ''; 
             const chaves = Object.keys(localStorage);
-            const projetosEncontrados = new Set(); // Set evita duplicatas
+            const projetosEncontrados = new Set(); 
 
-            // Varre o LocalStorage procurando nossas chaves
             chaves.forEach(chave => {
                 if (chave.startsWith('checklist_tarefas_')) {
                     const nomeProjeto = chave.replace('checklist_tarefas_', '');
                     projetosEncontrados.add(nomeProjeto);
                 }
-                // Adiciona também se tiver só contexto (caso raro, mas possível)
                 if (chave.startsWith('checklist_contexto_')) {
                     const nomeProjeto = chave.replace('checklist_contexto_', '');
                     projetosEncontrados.add(nomeProjeto);
                 }
             });
 
-            // Ordena alfabeticamente
             const arrayProjetos = Array.from(projetosEncontrados).sort();
 
             if (arrayProjetos.length === 0) {
@@ -326,10 +425,9 @@
                 arrayProjetos.forEach(proj => {
                     const li = document.createElement('li');
                     const a = document.createElement('a');
-                    a.href = `?id=${proj}`; // O link mágico
+                    a.href = `?id=${proj}`; 
                     a.innerText = proj.toUpperCase();
                     
-                    // Destaca o projeto atual
                     if (proj === LIST_ID) {
                         a.classList.add('active');
                         a.innerText += ' (Atual)';
@@ -343,20 +441,14 @@
             modalProjetos.style.display = 'flex';
         }
 
-        function fecharMenu() {
-            modalProjetos.style.display = 'none';
-        }
-
+        function fecharMenu() { modalProjetos.style.display = 'none'; }
         btnMenu.addEventListener('click', abrirMenu);
         btnCloseModal.addEventListener('click', fecharMenu);
-        
-        // Fecha se clicar fora da janelinha branca
         modalProjetos.addEventListener('click', (e) => {
             if (e.target === modalProjetos) fecharMenu();
         });
 
-
-        // --- 4. CRIAR ELEMENTOS ---
+        // --- 5. CRIAR ELEMENTOS ---
         function criarElementoVisual(texto, concluido = false) {
             const novoLi = document.createElement('li');
             novoLi.setAttribute('draggable', 'true');
@@ -402,8 +494,10 @@
             lista.appendChild(novoLi);
         }
 
-        // --- 5. CARREGAR DADOS ---
+        // --- 6. CARREGAR DADOS ---
         function carregarDados() {
+            carregarTema(); // Carrega o tema antes de tudo
+
             const contextoSalvo = localStorage.getItem(`checklist_contexto_${LIST_ID}`);
             if (contextoSalvo) {
                 contextArea.value = contextoSalvo;
@@ -418,7 +512,7 @@
             }
         }
 
-        // --- 6. ADICIONAR TAREFA ---
+        // --- 7. ADICIONAR TAREFA ---
         function adicionarNovaTarefa() {
             const texto = inputCampo.value;
             if (texto === "") {
@@ -432,7 +526,7 @@
             inputCampo.focus();
         }
 
-        // --- 7. DRAG AND DROP ---
+        // --- 8. DRAG AND DROP ---
         function adicionarEventosDeArrastar(item) {
             item.addEventListener('dragstart', () => {
                 item.classList.add('dragging');

@@ -1,6 +1,7 @@
 # ✅ Task-in-Browser
 
-![Screenshot do Projeto](screenshot.png)
+![Screenshot do Projeto](task-in-browser-light.png)
+![Screenshot do Projeto](task-in-browser-dark.png)
 
 > Um gerenciador de tarefas poderoso, persistente e sem servidor, contido em um único arquivo HTML.
 

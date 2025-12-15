@@ -24,8 +24,10 @@
             --danger-text: #d32f2f;
             --menu-bg: #e3f2fd;
             --menu-text: #1976d2;
-            --copy-text: #555;      /* Cor do botão de copiar */
+            --copy-text: #555;
             --copy-border: #ccc;
+            --backup-bg: #fff3e0;     /* Cor amarela suave para backup */
+            --backup-text: #ef6c00;
         }
 
         /* Tema Escuro */
@@ -48,6 +50,8 @@
             --menu-text: #90caf9;
             --copy-text: #aaa;
             --copy-border: #555;
+            --backup-bg: #3e2e1e;
+            --backup-text: #ffb74d;
         }
 
         /* --- ESTILOS GERAIS --- */
@@ -90,6 +94,13 @@
             justify-content: space-between;
             width: 100%;
         }
+        
+        /* Nova linha para os botões de backup */
+        .backup-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
 
         .badge-id {
             background-color: var(--border-color);
@@ -129,6 +140,19 @@
             border-color: var(--menu-bg);
         }
         .btn-menu:hover { opacity: 0.8; }
+        
+        /* Estilo Botão Backup */
+        .btn-backup {
+            background-color: var(--backup-bg);
+            color: var(--backup-text);
+            border: 1px solid var(--backup-text);
+            font-size: 11px; /* Um pouco menor para não poluir */
+            padding: 4px 8px;
+        }
+        .btn-backup:hover {
+            background-color: var(--backup-text);
+            color: var(--bg-container);
+        }
 
         .btn-theme {
             background: none;
@@ -222,34 +246,13 @@
         label { cursor: pointer; width: 100%; transition: color 0.3s; }
         input[type="checkbox"]:checked + label { text-decoration: line-through; color: #777; }
 
-        /* Botão de Copiar (NOVO) */
         .btn-copy {
-            background-color: transparent;
-            color: var(--copy-text);
-            border: 1px solid var(--copy-border);
-            border-radius: 4px;
-            padding: 5px 10px;
-            margin-left: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
+            background-color: transparent; color: var(--copy-text); border: 1px solid var(--copy-border); border-radius: 4px; padding: 5px 10px; margin-left: 10px; cursor: pointer; font-size: 14px; transition: all 0.2s;
         }
-        .btn-copy:hover {
-            background-color: var(--border-color);
-            color: var(--text-primary);
-        }
+        .btn-copy:hover { background-color: var(--border-color); color: var(--text-primary); }
 
-        /* Botão de Excluir */
         .btn-delete {
-            background-color: transparent; 
-            color: var(--danger-text); 
-            border: 1px solid var(--danger-text); 
-            border-radius: 4px; 
-            padding: 5px 10px; 
-            margin-left: 10px; 
-            cursor: pointer; 
-            font-size: 14px; 
-            transition: all 0.2s;
+            background-color: transparent; color: var(--danger-text); border: 1px solid var(--danger-text); border-radius: 4px; padding: 5px 10px; margin-left: 10px; cursor: pointer; font-size: 14px; transition: all 0.2s;
         }
         .btn-delete:hover { background-color: var(--danger-text); color: white; }
 
@@ -305,6 +308,12 @@
                 <span id="badgeId" class="badge-id">GERAL</span>
                 <button id="btnNuke" class="btn-action btn-nuke" title="Apagar todos os dados desta lista">🗑️ Apagar</button>
             </div>
+
+            <div class="backup-controls">
+                <button id="btnExport" class="btn-action btn-backup" title="Baixar todos os dados em um arquivo">⬇️ Backup (Salvar)</button>
+                <input type="file" id="fileInput" style="display: none;" accept=".json">
+                <button id="btnImport" class="btn-action btn-backup" title="Restaurar dados de um arquivo">⬆️ Restaurar</button>
+            </div>
         </header>
 
         <textarea class="context-area" id="contextArea" placeholder="Digite aqui o contexto, observações ou metas para essa lista..."></textarea>
@@ -338,6 +347,11 @@
         const btnNuke = document.getElementById('btnNuke');
         const btnTheme = document.getElementById('btnTheme');
         
+        // Elementos Backup
+        const btnExport = document.getElementById('btnExport');
+        const btnImport = document.getElementById('btnImport');
+        const fileInput = document.getElementById('fileInput');
+
         // Elementos do Modal
         const btnMenu = document.getElementById('btnMenu');
         const modalProjetos = document.getElementById('modalProjetos');
@@ -389,7 +403,79 @@
             localStorage.setItem(`checklist_tarefas_${LIST_ID}`, JSON.stringify(tarefas));
         }
 
-        // --- 3. DELETAR LISTA ---
+        // --- 3. BACKUP & RESTORE (NOVO!) ---
+        
+        // Exportar (Backup)
+        btnExport.addEventListener('click', () => {
+            // Cria um objeto com TUDO que tem no localStorage referente ao nosso app
+            const dadosBackup = {};
+            
+            // Varre o localStorage
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                // Salva apenas as chaves do nosso app (começa com checklist_ ou a pref de tema)
+                if (key.startsWith('checklist_') || key === 'task_theme_preference') {
+                    dadosBackup[key] = localStorage.getItem(key);
+                }
+            }
+
+            // Converte pra texto JSON
+            const jsonString = JSON.stringify(dadosBackup, null, 2);
+            
+            // Cria o "blob" (o arquivo virtual)
+            const blob = new Blob([jsonString], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            
+            // Cria um link temporário para forçar o download
+            const a = document.createElement('a');
+            a.href = url;
+            // Nome do arquivo com a data
+            const dataHoje = new Date().toISOString().slice(0, 10);
+            a.download = `backup_tasks_${dataHoje}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+        });
+
+        // Importar (Restaurar) - Ação do Botão
+        btnImport.addEventListener('click', () => {
+            fileInput.click(); // Simula o clique no input file escondido
+        });
+
+        // Importar - Quando escolhe o arquivo
+        fileInput.addEventListener('change', (e) => {
+            const arquivo = e.target.files[0];
+            if (!arquivo) return;
+
+            const leitor = new FileReader();
+            
+            leitor.onload = function(evento) {
+                try {
+                    const dadosImportados = JSON.parse(evento.target.result);
+                    
+                    if (confirm("ATENÇÃO: Restaurar o backup vai substituir as tarefas atuais pelas do arquivo. Deseja continuar?")) {
+                        
+                        // Restaura cada chave no localStorage
+                        Object.keys(dadosImportados).forEach(key => {
+                            localStorage.setItem(key, dadosImportados[key]);
+                        });
+                        
+                        alert("Backup restaurado com sucesso! A página será recarregada.");
+                        location.reload();
+                    }
+                } catch (err) {
+                    alert("Erro ao ler o arquivo de backup. Tem certeza que é um JSON válido?");
+                    console.error(err);
+                }
+            };
+            
+            leitor.readAsText(arquivo);
+            // Limpa o input para permitir selecionar o mesmo arquivo novamente se precisar
+            fileInput.value = '';
+        });
+
+
+        // --- 4. DELETAR LISTA ---
         btnNuke.addEventListener('click', () => {
             const confirmacao = confirm(`ATENÇÃO: Você tem certeza que deseja apagar a lista "${LIST_ID}"?\n\nIsso não pode ser desfeito.`);
             if (confirmacao) {
@@ -399,7 +485,7 @@
             }
         });
 
-        // --- 4. SISTEMA DE MENU ---
+        // --- 5. SISTEMA DE MENU ---
         function abrirMenu() {
             ulProjetos.innerHTML = ''; 
             const chaves = Object.keys(localStorage);
@@ -434,25 +520,22 @@
         btnCloseModal.addEventListener('click', fecharMenu);
         modalProjetos.addEventListener('click', (e) => { if (e.target === modalProjetos) fecharMenu(); });
 
-        // --- 5. FUNÇÃO DE COPIAR (ROBUSTA) ---
+        // --- 6. FUNÇÃO COPIAR ---
         function copiarTextoParaClipboard(texto) {
-            // Tenta API moderna
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 return navigator.clipboard.writeText(texto);
             } else {
-                // Fallback para método antigo (execCommand)
                 return new Promise((resolve, reject) => {
                     const textArea = document.createElement("textarea");
                     textArea.value = texto;
-                    textArea.style.position = "fixed"; // Evita scroll
+                    textArea.style.position = "fixed";
                     document.body.appendChild(textArea);
                     textArea.focus();
                     textArea.select();
                     try {
                         const successful = document.execCommand('copy');
-                        const msg = successful ? 'successful' : 'unsuccessful';
                         document.body.removeChild(textArea);
-                        resolve();
+                        if(successful) resolve(); else reject();
                     } catch (err) {
                         document.body.removeChild(textArea);
                         reject(err);
@@ -461,7 +544,7 @@
             }
         }
 
-        // --- 6. CRIAR ELEMENTOS ---
+        // --- 7. CRIAR ELEMENTOS ---
         function criarElementoVisual(texto, concluido = false) {
             const novoLi = document.createElement('li');
             novoLi.setAttribute('draggable', 'true');
@@ -489,30 +572,21 @@
             divConteudo.appendChild(novoCheckbox);
             divConteudo.appendChild(novaLabel);
 
-            // --- BOTÃO COPIAR (NOVO) ---
             const btnCopy = document.createElement('button');
             btnCopy.innerText = '📋';
             btnCopy.className = 'btn-copy';
             btnCopy.title = 'Copiar texto';
-            
             btnCopy.onclick = function() {
                 const textoParaCopiar = novaLabel.innerText;
-                
                 copiarTextoParaClipboard(textoParaCopiar)
                     .then(() => {
-                        // Feedback visual de sucesso
                         const iconeOriginal = btnCopy.innerText;
                         btnCopy.innerText = '✅';
-                        setTimeout(() => {
-                            btnCopy.innerText = iconeOriginal;
-                        }, 2000);
+                        setTimeout(() => { btnCopy.innerText = iconeOriginal; }, 2000);
                     })
-                    .catch(err => {
-                        alert('Erro ao copiar: ' + err);
-                    });
+                    .catch(err => { alert('Erro ao copiar'); });
             };
 
-            // --- BOTÃO EXCLUIR ---
             const btnDelete = document.createElement('button');
             btnDelete.innerText = '❌'; 
             btnDelete.className = 'btn-delete';
@@ -522,17 +596,16 @@
                 salvarDados(); 
             };
 
-            // Montagem
             novoLi.appendChild(dragHandle);
             novoLi.appendChild(divConteudo);
-            novoLi.appendChild(btnCopy);   // Adiciona botão copiar
-            novoLi.appendChild(btnDelete); // Adiciona botão excluir
+            novoLi.appendChild(btnCopy);
+            novoLi.appendChild(btnDelete);
 
             adicionarEventosDeArrastar(novoLi);
             lista.appendChild(novoLi);
         }
 
-        // --- 7. CARREGAR DADOS ---
+        // --- 8. CARREGAR DADOS ---
         function carregarDados() {
             carregarTema();
             const contextoSalvo = localStorage.getItem(`checklist_contexto_${LIST_ID}`);
@@ -545,7 +618,7 @@
             }
         }
 
-        // --- 8. ADICIONAR TAREFA ---
+        // --- 9. ADICIONAR TAREFA ---
         function adicionarNovaTarefa() {
             const texto = inputCampo.value;
             if (texto === "") { alert("Digite uma tarefa!"); inputCampo.focus(); return; }
@@ -554,7 +627,7 @@
             inputCampo.value = ''; inputCampo.focus();
         }
 
-        // --- 9. DRAG AND DROP ---
+        // --- 10. DRAG AND DROP ---
         function adicionarEventosDeArrastar(item) {
             item.addEventListener('dragstart', () => item.classList.add('dragging'));
             item.addEventListener('dragend', () => { item.classList.remove('dragging'); salvarDados(); });

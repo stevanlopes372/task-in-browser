@@ -7,7 +7,7 @@
     <style>
         /* --- DEFINIÇÃO DAS CORES (VARIÁVEIS) --- */
         :root {
-            /* Tema Claro (Padrão) */
+            /* Tema Claro */
             --bg-body: #f0f2f5;
             --bg-container: #ffffff;
             --text-primary: #333333;
@@ -24,11 +24,11 @@
             --danger-text: #d32f2f;
             --menu-bg: #e3f2fd;
             --menu-text: #1976d2;
-            --scroll-track: #f1f1f1;
-            --scroll-thumb: #888;
+            --copy-text: #555;      /* Cor do botão de copiar */
+            --copy-border: #ccc;
         }
 
-        /* Tema Escuro (Ativado via classe no body) */
+        /* Tema Escuro */
         body.dark-mode {
             --bg-body: #121212;
             --bg-container: #1e1e1e;
@@ -38,7 +38,7 @@
             --input-bg: #2c2c2c;
             --item-bg: #252525;
             --item-hover: #2f2f2f;
-            --accent-color: #66bb6a; /* Verde um pouco mais claro para contraste */
+            --accent-color: #66bb6a;
             --accent-hover: #57a05b;
             --shadow: rgba(0,0,0,0.5);
             --modal-overlay: rgba(0,0,0,0.8);
@@ -46,8 +46,8 @@
             --danger-text: #ff8a80;
             --menu-bg: #1a3b5c;
             --menu-text: #90caf9;
-            --scroll-track: #2c2c2c;
-            --scroll-thumb: #555;
+            --copy-text: #aaa;
+            --copy-border: #555;
         }
 
         /* --- ESTILOS GERAIS --- */
@@ -58,7 +58,7 @@
             display: flex;
             justify-content: center;
             padding-top: 50px;
-            transition: background-color 0.3s, color 0.3s; /* Transição suave */
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .container {
@@ -82,11 +82,7 @@
             gap: 15px;
         }
 
-        h1 {
-            color: var(--text-primary);
-            margin: 0;
-            font-size: 24px;
-        }
+        h1 { margin: 0; font-size: 24px; color: var(--text-primary); }
 
         .header-controls {
             display: flex;
@@ -209,32 +205,55 @@
             justify-content: space-between;
             transition: background-color 0.2s;
         }
-        .checklist li:hover {
-            background-color: var(--item-hover);
-        }
+        .checklist li:hover { background-color: var(--item-hover); }
         .checklist li.dragging {
             opacity: 0.5;
             background-color: var(--item-hover);
             border: 2px dashed var(--accent-color);
         }
+        
         .drag-handle {
             cursor: grab; color: #ccc; margin-right: 10px; font-size: 20px; user-select: none; padding: 0 5px;
         }
         .drag-handle:active { cursor: grabbing; }
         
         .task-content { display: flex; align-items: center; flex-grow: 1; }
-        
         input[type="checkbox"] { transform: scale(1.3); margin-right: 15px; cursor: pointer; }
-        
         label { cursor: pointer; width: 100%; transition: color 0.3s; }
         input[type="checkbox"]:checked + label { text-decoration: line-through; color: #777; }
 
+        /* Botão de Copiar (NOVO) */
+        .btn-copy {
+            background-color: transparent;
+            color: var(--copy-text);
+            border: 1px solid var(--copy-border);
+            border-radius: 4px;
+            padding: 5px 10px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn-copy:hover {
+            background-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Botão de Excluir */
         .btn-delete {
-            background-color: transparent; color: var(--danger-text); border: 1px solid var(--danger-text); border-radius: 4px; padding: 5px 10px; margin-left: 10px; cursor: pointer; font-size: 14px; transition: all 0.2s;
+            background-color: transparent; 
+            color: var(--danger-text); 
+            border: 1px solid var(--danger-text); 
+            border-radius: 4px; 
+            padding: 5px 10px; 
+            margin-left: 10px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            transition: all 0.2s;
         }
         .btn-delete:hover { background-color: var(--danger-text); color: white; }
 
-        /* --- MODAL (JANELA DE PROJETOS) --- */
+        /* --- MODAL --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--modal-overlay);
@@ -278,21 +297,13 @@
         <header>
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
                 <h1 id="tituloPagina">Lista de Tarefas</h1>
-                <button id="btnTheme" class="btn-action btn-theme" title="Alternar Tema Claro/Escuro">
-                    🌙
-                </button>
+                <button id="btnTheme" class="btn-action btn-theme" title="Alternar Tema Claro/Escuro">🌙</button>
             </div>
             
             <div class="header-controls">
-                <button id="btnMenu" class="btn-action btn-menu">
-                    📂 Meus Projetos
-                </button>
-
+                <button id="btnMenu" class="btn-action btn-menu">📂 Meus Projetos</button>
                 <span id="badgeId" class="badge-id">GERAL</span>
-                
-                <button id="btnNuke" class="btn-action btn-nuke" title="Apagar todos os dados desta lista">
-                    🗑️ Apagar
-                </button>
+                <button id="btnNuke" class="btn-action btn-nuke" title="Apagar todos os dados desta lista">🗑️ Apagar</button>
             </div>
         </header>
 
@@ -313,8 +324,7 @@
                 <h2>Navegar entre Listas</h2>
                 <button class="close-modal" id="btnCloseModal">&times;</button>
             </div>
-            <ul id="listaProjetos">
-            </ul>
+            <ul id="listaProjetos"></ul>
         </div>
     </div>
 
@@ -326,7 +336,7 @@
         const contextArea = document.getElementById('contextArea');
         const badgeId = document.getElementById('badgeId');
         const btnNuke = document.getElementById('btnNuke');
-        const btnTheme = document.getElementById('btnTheme'); // Novo botão
+        const btnTheme = document.getElementById('btnTheme');
         
         // Elementos do Modal
         const btnMenu = document.getElementById('btnMenu');
@@ -345,22 +355,18 @@
         badgeId.innerText = LIST_ID;
         document.title = `Task: ${LIST_ID.toUpperCase()}`;
 
-        // --- 1. LÓGICA DO DARK MODE (NOVO!) ---
+        // --- 1. DARK MODE ---
         function carregarTema() {
             const temaSalvo = localStorage.getItem('task_theme_preference');
-            
             if (temaSalvo === 'dark') {
                 document.body.classList.add('dark-mode');
-                btnTheme.innerText = '☀️'; // Solzinho
+                btnTheme.innerText = '☀️';
             } else {
-                btnTheme.innerText = '🌙'; // Lua
+                btnTheme.innerText = '🌙';
             }
         }
-
         btnTheme.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
-            
-            // Verifica se ficou escuro ou claro para salvar
             if (document.body.classList.contains('dark-mode')) {
                 localStorage.setItem('task_theme_preference', 'dark');
                 btnTheme.innerText = '☀️';
@@ -370,23 +376,16 @@
             }
         });
 
-        // --- 2. PERSISTÊNCIA DADOS ---
+        // --- 2. PERSISTÊNCIA ---
         function salvarDados() {
             localStorage.setItem(`checklist_contexto_${LIST_ID}`, contextArea.value);
-
             const tarefas = [];
             const itensLista = lista.querySelectorAll('li');
-
             itensLista.forEach(li => {
                 const checkbox = li.querySelector('input[type="checkbox"]');
                 const label = li.querySelector('label');
-                
-                tarefas.push({
-                    texto: label.innerText,
-                    concluido: checkbox.checked
-                });
+                tarefas.push({ texto: label.innerText, concluido: checkbox.checked });
             });
-
             localStorage.setItem(`checklist_tarefas_${LIST_ID}`, JSON.stringify(tarefas));
         }
 
@@ -400,23 +399,19 @@
             }
         });
 
-        // --- 4. SISTEMA DE MENU/MODAL ---
+        // --- 4. SISTEMA DE MENU ---
         function abrirMenu() {
             ulProjetos.innerHTML = ''; 
             const chaves = Object.keys(localStorage);
             const projetosEncontrados = new Set(); 
-
             chaves.forEach(chave => {
                 if (chave.startsWith('checklist_tarefas_')) {
-                    const nomeProjeto = chave.replace('checklist_tarefas_', '');
-                    projetosEncontrados.add(nomeProjeto);
+                    projetosEncontrados.add(chave.replace('checklist_tarefas_', ''));
                 }
                 if (chave.startsWith('checklist_contexto_')) {
-                    const nomeProjeto = chave.replace('checklist_contexto_', '');
-                    projetosEncontrados.add(nomeProjeto);
+                    projetosEncontrados.add(chave.replace('checklist_contexto_', ''));
                 }
             });
-
             const arrayProjetos = Array.from(projetosEncontrados).sort();
 
             if (arrayProjetos.length === 0) {
@@ -427,28 +422,46 @@
                     const a = document.createElement('a');
                     a.href = `?id=${proj}`; 
                     a.innerText = proj.toUpperCase();
-                    
-                    if (proj === LIST_ID) {
-                        a.classList.add('active');
-                        a.innerText += ' (Atual)';
-                    }
-                    
+                    if (proj === LIST_ID) { a.classList.add('active'); a.innerText += ' (Atual)'; }
                     li.appendChild(a);
                     ulProjetos.appendChild(li);
                 });
             }
-
             modalProjetos.style.display = 'flex';
         }
-
         function fecharMenu() { modalProjetos.style.display = 'none'; }
         btnMenu.addEventListener('click', abrirMenu);
         btnCloseModal.addEventListener('click', fecharMenu);
-        modalProjetos.addEventListener('click', (e) => {
-            if (e.target === modalProjetos) fecharMenu();
-        });
+        modalProjetos.addEventListener('click', (e) => { if (e.target === modalProjetos) fecharMenu(); });
 
-        // --- 5. CRIAR ELEMENTOS ---
+        // --- 5. FUNÇÃO DE COPIAR (ROBUSTA) ---
+        function copiarTextoParaClipboard(texto) {
+            // Tenta API moderna
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                return navigator.clipboard.writeText(texto);
+            } else {
+                // Fallback para método antigo (execCommand)
+                return new Promise((resolve, reject) => {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = texto;
+                    textArea.style.position = "fixed"; // Evita scroll
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        const successful = document.execCommand('copy');
+                        const msg = successful ? 'successful' : 'unsuccessful';
+                        document.body.removeChild(textArea);
+                        resolve();
+                    } catch (err) {
+                        document.body.removeChild(textArea);
+                        reject(err);
+                    }
+                });
+            }
+        }
+
+        // --- 6. CRIAR ELEMENTOS ---
         function criarElementoVisual(texto, concluido = false) {
             const novoLi = document.createElement('li');
             novoLi.setAttribute('draggable', 'true');
@@ -476,100 +489,97 @@
             divConteudo.appendChild(novoCheckbox);
             divConteudo.appendChild(novaLabel);
 
+            // --- BOTÃO COPIAR (NOVO) ---
+            const btnCopy = document.createElement('button');
+            btnCopy.innerText = '📋';
+            btnCopy.className = 'btn-copy';
+            btnCopy.title = 'Copiar texto';
+            
+            btnCopy.onclick = function() {
+                const textoParaCopiar = novaLabel.innerText;
+                
+                copiarTextoParaClipboard(textoParaCopiar)
+                    .then(() => {
+                        // Feedback visual de sucesso
+                        const iconeOriginal = btnCopy.innerText;
+                        btnCopy.innerText = '✅';
+                        setTimeout(() => {
+                            btnCopy.innerText = iconeOriginal;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        alert('Erro ao copiar: ' + err);
+                    });
+            };
+
+            // --- BOTÃO EXCLUIR ---
             const btnDelete = document.createElement('button');
             btnDelete.innerText = '❌'; 
             btnDelete.className = 'btn-delete';
             btnDelete.title = 'Excluir tarefa'; 
-            
             btnDelete.onclick = function() {
                 novoLi.remove();
                 salvarDados(); 
             };
 
+            // Montagem
             novoLi.appendChild(dragHandle);
             novoLi.appendChild(divConteudo);
-            novoLi.appendChild(btnDelete);
+            novoLi.appendChild(btnCopy);   // Adiciona botão copiar
+            novoLi.appendChild(btnDelete); // Adiciona botão excluir
 
             adicionarEventosDeArrastar(novoLi);
             lista.appendChild(novoLi);
         }
 
-        // --- 6. CARREGAR DADOS ---
+        // --- 7. CARREGAR DADOS ---
         function carregarDados() {
-            carregarTema(); // Carrega o tema antes de tudo
-
+            carregarTema();
             const contextoSalvo = localStorage.getItem(`checklist_contexto_${LIST_ID}`);
-            if (contextoSalvo) {
-                contextArea.value = contextoSalvo;
-            }
+            if (contextoSalvo) contextArea.value = contextoSalvo;
 
             const tarefasSalvas = localStorage.getItem(`checklist_tarefas_${LIST_ID}`);
             if (tarefasSalvas) {
                 const arrayTarefas = JSON.parse(tarefasSalvas);
-                arrayTarefas.forEach(tarefa => {
-                    criarElementoVisual(tarefa.texto, tarefa.concluido);
-                });
+                arrayTarefas.forEach(tarefa => criarElementoVisual(tarefa.texto, tarefa.concluido));
             }
         }
 
-        // --- 7. ADICIONAR TAREFA ---
+        // --- 8. ADICIONAR TAREFA ---
         function adicionarNovaTarefa() {
             const texto = inputCampo.value;
-            if (texto === "") {
-                alert("Digite uma tarefa!");
-                inputCampo.focus();
-                return;
-            }
+            if (texto === "") { alert("Digite uma tarefa!"); inputCampo.focus(); return; }
             criarElementoVisual(texto, false); 
             salvarDados(); 
-            inputCampo.value = '';
-            inputCampo.focus();
+            inputCampo.value = ''; inputCampo.focus();
         }
 
-        // --- 8. DRAG AND DROP ---
+        // --- 9. DRAG AND DROP ---
         function adicionarEventosDeArrastar(item) {
-            item.addEventListener('dragstart', () => {
-                item.classList.add('dragging');
-            });
-            item.addEventListener('dragend', () => {
-                item.classList.remove('dragging');
-                salvarDados(); 
-            });
+            item.addEventListener('dragstart', () => item.classList.add('dragging'));
+            item.addEventListener('dragend', () => { item.classList.remove('dragging'); salvarDados(); });
         }
-
         lista.addEventListener('dragover', e => {
             e.preventDefault();
             const afterElement = getDragAfterElement(lista, e.clientY);
             const draggable = document.querySelector('.dragging');
-            if (afterElement == null) {
-                lista.appendChild(draggable);
-            } else {
-                lista.insertBefore(draggable, afterElement);
-            }
+            if (afterElement == null) lista.appendChild(draggable);
+            else lista.insertBefore(draggable, afterElement);
         });
-
         function getDragAfterElement(container, y) {
             const draggableElements = [...container.querySelectorAll('.draggable-item:not(.dragging)')];
             return draggableElements.reduce((closest, child) => {
                 const box = child.getBoundingClientRect();
                 const offset = y - box.top - box.height / 2; 
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
-                } else {
-                    return closest;
-                }
+                return (offset < 0 && offset > closest.offset) ? { offset: offset, element: child } : closest;
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
         btnAdicionar.addEventListener('click', adicionarNovaTarefa);
-        inputCampo.addEventListener('keypress', function(e) {
-            if(e.key === 'Enter') { adicionarNovaTarefa(); }
-        });
+        inputCampo.addEventListener('keypress', function(e) { if(e.key === 'Enter') adicionarNovaTarefa(); });
         contextArea.addEventListener('input', salvarDados);
 
         carregarDados();
-
     </script>
-
 </body>
 </html>

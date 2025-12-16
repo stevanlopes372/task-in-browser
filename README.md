@@ -10,12 +10,13 @@ O **Task-in-Browser** é uma ferramenta de produtividade minimalista projetada p
 ## 🚀 Funcionalidades (Features)
 
 * **⚡ Ultraleve:** Um único arquivo HTML com menos de 20kb.
+* **🌳 Sub-tarefas (Hierarquia):** Quebre tarefas complexas em etapas menores usando o botão `+`.
 * **🌙 Modo Escuro (Dark Mode):** Alternância instantânea de tema com persistência de preferência.
 * **🛡️ Backup & Restore:** Sistema completo de Exportação e Importação (JSON) para segurança dos seus dados.
 * **🗂️ Múltiplos Contextos (Projetos):** Crie listas separadas dinamicamente via URL (ex: `?id=trabalho`, `?id=pessoal`).
 * **📋 Copiar Rápido:** Botão dedicado para copiar o conteúdo da tarefa para a área de transferência com um clique.
 * **💾 Persistência Automática:** Seus dados são salvos no navegador em tempo real.
-* **🖱️ Drag-and-Drop:** Reorganize suas prioridades arrastando e soltando as tarefas.
+* **🖱️ Drag-and-Drop:** Reorganize suas prioridades arrastando e soltando as tarefas principais.
 * **📝 Área de Contexto:** Um bloco de notas dedicado para cada lista (metas, observações, rascunhos).
 * **📂 Dashboard de Projetos:** Um menu visual para navegar entre todas as suas listas ativas.
 * **🔐 Privacidade Total:** Os dados ficam no seu dispositivo, nada é enviado para a nuvem.
@@ -40,7 +41,7 @@ Use o botão **📂 Meus Projetos** no topo da página para ver todas as listas 
 
 Como este aplicativo utiliza o `localStorage` do navegador, seus dados vivem no seu dispositivo. Para garantir que você não perca nada ao formatar o PC ou limpar o histórico:
 
-1.  Clique no botão **⬇️ Backup (Salvar)** no topo da página.
+1.  Clique no botão **⬇️ Backup** no topo da página.
 2.  Guarde o arquivo `.json` gerado em um local seguro (Google Drive, Email, etc).
 3.  Para recuperar, use o botão **⬆️ Restaurar** e selecione o arquivo.
 
@@ -64,7 +65,8 @@ Sinta-se à vontade para fazer um fork e submeter Pull Requests.
 - [x] Modo Escuro (Dark Mode).
 - [x] Exportar/Importar dados (JSON).
 - [x] Botão de Copiar (Clipboard).
-- [ ] Sub-tarefas (Nested lists).
+- [x] Sub-tarefas (Nested lists).
+- [ ] Tags/Etiquetas coloridas (Future).
 
 ---
 *Desenvolvido com ❤️, JavaScript Puro e muito Vibe Coding.*

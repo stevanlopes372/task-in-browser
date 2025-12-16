@@ -26,8 +26,9 @@
             --menu-text: #1976d2;
             --copy-text: #555;
             --copy-border: #ccc;
-            --backup-bg: #fff3e0;     /* Cor amarela suave para backup */
+            --backup-bg: #fff3e0;
             --backup-text: #ef6c00;
+            --subtask-bg: #f9f9f9; /* Fundo leve para subtasks */
         }
 
         /* Tema Escuro */
@@ -52,6 +53,7 @@
             --copy-border: #555;
             --backup-bg: #3e2e1e;
             --backup-text: #ffb74d;
+            --subtask-bg: #2a2a2a;
         }
 
         /* --- ESTILOS GERAIS --- */
@@ -95,7 +97,6 @@
             width: 100%;
         }
         
-        /* Nova linha para os botões de backup */
         .backup-controls {
             display: flex;
             gap: 10px;
@@ -127,113 +128,66 @@
             border: 1px solid transparent;
         }
 
-        .btn-nuke {
-            background-color: var(--danger-bg);
-            color: var(--danger-text);
-            border-color: var(--danger-bg);
-        }
+        .btn-nuke { background-color: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-bg); }
         .btn-nuke:hover { opacity: 0.8; }
 
-        .btn-menu {
-            background-color: var(--menu-bg);
-            color: var(--menu-text);
-            border-color: var(--menu-bg);
-        }
+        .btn-menu { background-color: var(--menu-bg); color: var(--menu-text); border-color: var(--menu-bg); }
         .btn-menu:hover { opacity: 0.8; }
         
-        /* Estilo Botão Backup */
         .btn-backup {
-            background-color: var(--backup-bg);
-            color: var(--backup-text);
-            border: 1px solid var(--backup-text);
-            font-size: 11px; /* Um pouco menor para não poluir */
-            padding: 4px 8px;
+            background-color: var(--backup-bg); color: var(--backup-text); border: 1px solid var(--backup-text); font-size: 11px; padding: 4px 8px;
         }
-        .btn-backup:hover {
-            background-color: var(--backup-text);
-            color: var(--bg-container);
-        }
+        .btn-backup:hover { background-color: var(--backup-text); color: var(--bg-container); }
 
         .btn-theme {
-            background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            font-size: 16px;
-            padding: 5px 10px;
+            background: none; border: 1px solid var(--border-color); color: var(--text-primary); font-size: 16px; padding: 5px 10px;
         }
         .btn-theme:hover { background-color: var(--item-hover); }
 
-        /* Estilos do Conteúdo Principal */
         .context-area {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 12px;
-            margin-bottom: 25px;
-            border: 2px solid var(--border-color);
-            background-color: var(--input-bg);
-            color: var(--text-primary);
-            border-radius: 6px;
-            font-family: inherit;
-            font-size: 15px;
-            resize: vertical;
-            outline: none;
-            transition: border-color 0.3s;
-            min-height: 80px;
+            width: 100%; box-sizing: border-box; padding: 12px; margin-bottom: 25px; border: 2px solid var(--border-color); background-color: var(--input-bg); color: var(--text-primary); border-radius: 6px; font-family: inherit; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; min-height: 80px;
         }
         .context-area:focus { border-color: var(--accent-color); }
 
         .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 25px;
+            display: flex; gap: 10px; margin-bottom: 25px; border-top: 1px solid var(--border-color); padding-top: 25px;
         }
 
         #novoItemInput {
-            flex-grow: 1;
-            padding: 12px;
-            border: 2px solid var(--border-color);
-            background-color: var(--input-bg);
-            color: var(--text-primary);
-            border-radius: 6px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s;
+            flex-grow: 1; padding: 12px; border: 2px solid var(--border-color); background-color: var(--input-bg); color: var(--text-primary); border-radius: 6px; font-size: 16px; outline: none; transition: border-color 0.3s;
         }
         #novoItemInput:focus { border-color: var(--accent-color); }
 
         #btnAdd {
-            padding: 12px 25px;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            padding: 12px 25px; background-color: var(--accent-color); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.2s;
         }
         #btnAdd:hover { background-color: var(--accent-hover); }
 
-        /* Lista */
+        /* Lista Principal */
         .checklist { list-style: none; padding: 0; margin: 0; }
-        .checklist li {
+        
+        /* Item da Lista (Container Pai) */
+        .checklist > li {
             background-color: var(--item-bg);
             color: var(--text-primary);
             border-bottom: 1px solid var(--border-color);
-            padding: 10px;
-            font-size: 18px;
+            padding: 15px 10px; /* Aumentei um pouco o padding vertical */
             display: flex;
-            align-items: center; 
-            justify-content: space-between;
+            flex-direction: column; /* Importante para a sublista ficar embaixo */
             transition: background-color 0.2s;
         }
-        .checklist li:hover { background-color: var(--item-hover); }
+        .checklist > li:hover { background-color: var(--item-hover); }
+        
+        /* Linha principal do item (Checkbox + Texto + Botões) */
+        .main-task-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
         .checklist li.dragging {
-            opacity: 0.5;
-            background-color: var(--item-hover);
-            border: 2px dashed var(--accent-color);
+            opacity: 0.5; background-color: var(--item-hover); border: 2px dashed var(--accent-color);
         }
         
         .drag-handle {
@@ -243,31 +197,58 @@
         
         .task-content { display: flex; align-items: center; flex-grow: 1; }
         input[type="checkbox"] { transform: scale(1.3); margin-right: 15px; cursor: pointer; }
-        label { cursor: pointer; width: 100%; transition: color 0.3s; }
+        label { cursor: pointer; width: 100%; transition: color 0.3s; word-break: break-word; }
         input[type="checkbox"]:checked + label { text-decoration: line-through; color: #777; }
 
-        .btn-copy {
-            background-color: transparent; color: var(--copy-text); border: 1px solid var(--copy-border); border-radius: 4px; padding: 5px 10px; margin-left: 10px; cursor: pointer; font-size: 14px; transition: all 0.2s;
+        /* --- ESTILOS DE SUB-TAREFAS (NOVO) --- */
+        .subtask-container {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+            margin-left: 35px; /* Indentação */
+            border-left: 2px solid var(--border-color); /* Linha guia visual */
         }
-        .btn-copy:hover { background-color: var(--border-color); color: var(--text-primary); }
 
-        .btn-delete {
-            background-color: transparent; color: var(--danger-text); border: 1px solid var(--danger-text); border-radius: 4px; padding: 5px 10px; margin-left: 10px; cursor: pointer; font-size: 14px; transition: all 0.2s;
+        .subtask-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            background-color: var(--subtask-bg);
+            margin-bottom: 2px;
+            border-radius: 0 6px 6px 0;
+            font-size: 15px; /* Um pouco menor */
         }
+        
+        /* Botões Pequenos */
+        .btn-small {
+            background-color: transparent; 
+            border: 1px solid var(--border-color); 
+            border-radius: 4px; 
+            padding: 4px 8px; 
+            margin-left: 5px; 
+            cursor: pointer; 
+            font-size: 12px; 
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .btn-small:hover { background-color: var(--border-color); color: var(--text-primary); }
+        
+        .btn-add-sub { color: var(--accent-color); border-color: var(--accent-color); }
+        .btn-add-sub:hover { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
+
+        .btn-delete { color: var(--danger-text); border-color: var(--danger-text); }
         .btn-delete:hover { background-color: var(--danger-text); color: white; }
 
         /* --- MODAL --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--modal-overlay);
-            display: none; 
-            justify-content: center; align-items: center;
-            z-index: 1000;
+            display: none; justify-content: center; align-items: center; z-index: 1000;
         }
         .modal-content {
             background-color: var(--bg-container); padding: 25px; border-radius: 10px; width: 400px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            color: var(--text-primary);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: var(--text-primary);
         }
         .modal-header {
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;
@@ -281,11 +262,7 @@
         #listaProjetos { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; }
         #listaProjetos li { margin-bottom: 8px; }
         #listaProjetos a {
-            display: block; padding: 10px; 
-            background-color: var(--item-bg); 
-            text-decoration: none; color: var(--text-primary); 
-            border-radius: 6px; border: 1px solid var(--border-color); 
-            transition: all 0.2s;
+            display: block; padding: 10px; background-color: var(--item-bg); text-decoration: none; color: var(--text-primary); border-radius: 6px; border: 1px solid var(--border-color); transition: all 0.2s;
         }
         #listaProjetos a:hover { background-color: var(--item-hover); border-color: var(--accent-color); }
         #listaProjetos a.active { background-color: var(--menu-bg); border-color: var(--menu-text); font-weight: bold; }
@@ -310,7 +287,7 @@
             </div>
 
             <div class="backup-controls">
-                <button id="btnExport" class="btn-action btn-backup" title="Baixar todos os dados em um arquivo">⬇️ Backup (Salvar)</button>
+                <button id="btnExport" class="btn-action btn-backup" title="Baixar todos os dados em um arquivo">⬇️ Backup</button>
                 <input type="file" id="fileInput" style="display: none;" accept=".json">
                 <button id="btnImport" class="btn-action btn-backup" title="Restaurar dados de um arquivo">⬆️ Restaurar</button>
             </div>
@@ -390,95 +367,85 @@
             }
         });
 
-        // --- 2. PERSISTÊNCIA ---
+        // --- 2. PERSISTÊNCIA (AGORA RECURSIVA PARA SUBTAREFAS) ---
         function salvarDados() {
             localStorage.setItem(`checklist_contexto_${LIST_ID}`, contextArea.value);
+            
             const tarefas = [];
-            const itensLista = lista.querySelectorAll('li');
+            // Seleciona APENAS os LIs diretos da lista principal para não duplicar
+            const itensLista = lista.querySelectorAll('#listaTarefas > li');
+
             itensLista.forEach(li => {
-                const checkbox = li.querySelector('input[type="checkbox"]');
-                const label = li.querySelector('label');
-                tarefas.push({ texto: label.innerText, concluido: checkbox.checked });
+                const mainRow = li.querySelector('.main-task-row');
+                const checkbox = mainRow.querySelector('input[type="checkbox"]');
+                const label = mainRow.querySelector('label');
+                
+                // Pega as subtarefas
+                const subTarefasArr = [];
+                const subUl = li.querySelector('.subtask-container');
+                if (subUl) {
+                    const subItens = subUl.querySelectorAll('.subtask-item');
+                    subItens.forEach(subLi => {
+                        const subCheck = subLi.querySelector('input[type="checkbox"]');
+                        const subLabel = subLi.querySelector('label');
+                        subTarefasArr.push({
+                            texto: subLabel.innerText,
+                            concluido: subCheck.checked
+                        });
+                    });
+                }
+
+                tarefas.push({
+                    texto: label.innerText,
+                    concluido: checkbox.checked,
+                    subtarefas: subTarefasArr // Nova estrutura
+                });
             });
+
             localStorage.setItem(`checklist_tarefas_${LIST_ID}`, JSON.stringify(tarefas));
         }
 
-        // --- 3. BACKUP & RESTORE (NOVO!) ---
-        
-        // Exportar (Backup)
+        // --- 3. BACKUP & RESTORE ---
         btnExport.addEventListener('click', () => {
-            // Cria um objeto com TUDO que tem no localStorage referente ao nosso app
             const dadosBackup = {};
-            
-            // Varre o localStorage
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                // Salva apenas as chaves do nosso app (começa com checklist_ ou a pref de tema)
                 if (key.startsWith('checklist_') || key === 'task_theme_preference') {
                     dadosBackup[key] = localStorage.getItem(key);
                 }
             }
-
-            // Converte pra texto JSON
-            const jsonString = JSON.stringify(dadosBackup, null, 2);
-            
-            // Cria o "blob" (o arquivo virtual)
-            const blob = new Blob([jsonString], { type: "application/json" });
+            const blob = new Blob([JSON.stringify(dadosBackup, null, 2)], { type: "application/json" });
             const url = URL.createObjectURL(blob);
-            
-            // Cria um link temporário para forçar o download
             const a = document.createElement('a');
             a.href = url;
-            // Nome do arquivo com a data
-            const dataHoje = new Date().toISOString().slice(0, 10);
-            a.download = `backup_tasks_${dataHoje}.json`;
+            a.download = `backup_tasks_${new Date().toISOString().slice(0, 10)}.json`;
             a.click();
-            
             URL.revokeObjectURL(url);
         });
 
-        // Importar (Restaurar) - Ação do Botão
-        btnImport.addEventListener('click', () => {
-            fileInput.click(); // Simula o clique no input file escondido
-        });
-
-        // Importar - Quando escolhe o arquivo
+        btnImport.addEventListener('click', () => { fileInput.click(); });
         fileInput.addEventListener('change', (e) => {
             const arquivo = e.target.files[0];
             if (!arquivo) return;
-
             const leitor = new FileReader();
-            
             leitor.onload = function(evento) {
                 try {
                     const dadosImportados = JSON.parse(evento.target.result);
-                    
-                    if (confirm("ATENÇÃO: Restaurar o backup vai substituir as tarefas atuais pelas do arquivo. Deseja continuar?")) {
-                        
-                        // Restaura cada chave no localStorage
+                    if (confirm("Restaurar o backup vai substituir as tarefas atuais. Continuar?")) {
                         Object.keys(dadosImportados).forEach(key => {
                             localStorage.setItem(key, dadosImportados[key]);
                         });
-                        
-                        alert("Backup restaurado com sucesso! A página será recarregada.");
                         location.reload();
                     }
-                } catch (err) {
-                    alert("Erro ao ler o arquivo de backup. Tem certeza que é um JSON válido?");
-                    console.error(err);
-                }
+                } catch (err) { alert("Erro ao ler backup."); }
             };
-            
             leitor.readAsText(arquivo);
-            // Limpa o input para permitir selecionar o mesmo arquivo novamente se precisar
             fileInput.value = '';
         });
 
-
         // --- 4. DELETAR LISTA ---
         btnNuke.addEventListener('click', () => {
-            const confirmacao = confirm(`ATENÇÃO: Você tem certeza que deseja apagar a lista "${LIST_ID}"?\n\nIsso não pode ser desfeito.`);
-            if (confirmacao) {
+            if (confirm(`Apagar a lista "${LIST_ID}"? Isso não tem volta.`)) {
                 localStorage.removeItem(`checklist_contexto_${LIST_ID}`);
                 localStorage.removeItem(`checklist_tarefas_${LIST_ID}`);
                 location.reload();
@@ -491,26 +458,18 @@
             const chaves = Object.keys(localStorage);
             const projetosEncontrados = new Set(); 
             chaves.forEach(chave => {
-                if (chave.startsWith('checklist_tarefas_')) {
-                    projetosEncontrados.add(chave.replace('checklist_tarefas_', ''));
-                }
-                if (chave.startsWith('checklist_contexto_')) {
-                    projetosEncontrados.add(chave.replace('checklist_contexto_', ''));
-                }
+                if (chave.startsWith('checklist_tarefas_')) projetosEncontrados.add(chave.replace('checklist_tarefas_', ''));
+                if (chave.startsWith('checklist_contexto_')) projetosEncontrados.add(chave.replace('checklist_contexto_', ''));
             });
             const arrayProjetos = Array.from(projetosEncontrados).sort();
-
-            if (arrayProjetos.length === 0) {
-                ulProjetos.innerHTML = '<div class="empty-state">Nenhum projeto salvo ainda.</div>';
-            } else {
+            if (arrayProjetos.length === 0) ulProjetos.innerHTML = '<div class="empty-state">Sem projetos.</div>';
+            else {
                 arrayProjetos.forEach(proj => {
                     const li = document.createElement('li');
                     const a = document.createElement('a');
-                    a.href = `?id=${proj}`; 
-                    a.innerText = proj.toUpperCase();
+                    a.href = `?id=${proj}`; a.innerText = proj.toUpperCase();
                     if (proj === LIST_ID) { a.classList.add('active'); a.innerText += ' (Atual)'; }
-                    li.appendChild(a);
-                    ulProjetos.appendChild(li);
+                    li.appendChild(a); ulProjetos.appendChild(li);
                 });
             }
             modalProjetos.style.display = 'flex';
@@ -522,33 +481,25 @@
 
         // --- 6. FUNÇÃO COPIAR ---
         function copiarTextoParaClipboard(texto) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                return navigator.clipboard.writeText(texto);
-            } else {
+            if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(texto);
+            else {
                 return new Promise((resolve, reject) => {
                     const textArea = document.createElement("textarea");
-                    textArea.value = texto;
-                    textArea.style.position = "fixed";
-                    document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
-                    try {
-                        const successful = document.execCommand('copy');
-                        document.body.removeChild(textArea);
-                        if(successful) resolve(); else reject();
-                    } catch (err) {
-                        document.body.removeChild(textArea);
-                        reject(err);
-                    }
+                    textArea.value = texto; textArea.style.position = "fixed"; document.body.appendChild(textArea); textArea.focus(); textArea.select();
+                    try { const successful = document.execCommand('copy'); document.body.removeChild(textArea); successful ? resolve() : reject(); } catch (err) { document.body.removeChild(textArea); reject(err); }
                 });
             }
         }
 
-        // --- 7. CRIAR ELEMENTOS ---
-        function criarElementoVisual(texto, concluido = false) {
+        // --- 7. CRIAR ELEMENTO (MODIFICADO PARA SUPORTAR SUBTAREFAS) ---
+        function criarElementoVisual(texto, concluido = false, subTarefas = []) {
             const novoLi = document.createElement('li');
             novoLi.setAttribute('draggable', 'true');
             novoLi.classList.add('draggable-item');
+
+            // --- LINHA PRINCIPAL (Main Row) ---
+            const mainRow = document.createElement('div');
+            mainRow.className = 'main-task-row';
 
             const dragHandle = document.createElement('span');
             dragHandle.className = 'drag-handle';
@@ -572,34 +523,104 @@
             divConteudo.appendChild(novoCheckbox);
             divConteudo.appendChild(novaLabel);
 
+            // Botões de Ação
+            const divBotoes = document.createElement('div');
+            divBotoes.style.display = 'flex';
+            divBotoes.style.alignItems = 'center';
+
+            // 1. Botão Adicionar Subtarefa (+)
+            const btnAddSub = document.createElement('button');
+            btnAddSub.innerText = '➕';
+            btnAddSub.className = 'btn-small btn-add-sub';
+            btnAddSub.title = 'Adicionar Subtarefa';
+            
+            // 2. Botão Copiar
             const btnCopy = document.createElement('button');
             btnCopy.innerText = '📋';
-            btnCopy.className = 'btn-copy';
-            btnCopy.title = 'Copiar texto';
+            btnCopy.className = 'btn-small';
+            btnCopy.title = 'Copiar';
             btnCopy.onclick = function() {
-                const textoParaCopiar = novaLabel.innerText;
-                copiarTextoParaClipboard(textoParaCopiar)
-                    .then(() => {
-                        const iconeOriginal = btnCopy.innerText;
-                        btnCopy.innerText = '✅';
-                        setTimeout(() => { btnCopy.innerText = iconeOriginal; }, 2000);
-                    })
-                    .catch(err => { alert('Erro ao copiar'); });
+                copiarTextoParaClipboard(texto).then(() => {
+                    const original = btnCopy.innerText; btnCopy.innerText = '✅'; setTimeout(() => btnCopy.innerText = original, 2000);
+                });
             };
 
+            // 3. Botão Excluir
             const btnDelete = document.createElement('button');
             btnDelete.innerText = '❌'; 
-            btnDelete.className = 'btn-delete';
-            btnDelete.title = 'Excluir tarefa'; 
+            btnDelete.className = 'btn-small btn-delete';
+            btnDelete.title = 'Excluir'; 
             btnDelete.onclick = function() {
                 novoLi.remove();
                 salvarDados(); 
             };
 
-            novoLi.appendChild(dragHandle);
-            novoLi.appendChild(divConteudo);
-            novoLi.appendChild(btnCopy);
-            novoLi.appendChild(btnDelete);
+            divBotoes.appendChild(btnAddSub);
+            divBotoes.appendChild(btnCopy);
+            divBotoes.appendChild(btnDelete);
+
+            mainRow.appendChild(dragHandle);
+            mainRow.appendChild(divConteudo);
+            mainRow.appendChild(divBotoes);
+
+            novoLi.appendChild(mainRow); // Adiciona a linha principal ao LI
+
+            // --- CONTAINER DE SUBTAREFAS ---
+            const subUl = document.createElement('ul');
+            subUl.className = 'subtask-container';
+            novoLi.appendChild(subUl);
+
+            // Função para criar subtarefa visualmente
+            function adicionarSubTarefaVisual(subTexto, subConcluido) {
+                const subLi = document.createElement('li');
+                subLi.className = 'subtask-item';
+
+                const subContent = document.createElement('div');
+                subContent.className = 'task-content';
+
+                const subId = 'sub_' + Date.now() + Math.random();
+                
+                const subCheck = document.createElement('input');
+                subCheck.type = 'checkbox';
+                subCheck.id = subId;
+                subCheck.checked = subConcluido;
+                subCheck.addEventListener('change', salvarDados);
+
+                const subLabel = document.createElement('label');
+                subLabel.htmlFor = subId;
+                subLabel.innerText = subTexto;
+
+                subContent.appendChild(subCheck);
+                subContent.appendChild(subLabel);
+
+                const subDelete = document.createElement('button');
+                subDelete.innerText = 'x';
+                subDelete.className = 'btn-small btn-delete';
+                subDelete.onclick = function() {
+                    subLi.remove();
+                    salvarDados();
+                };
+
+                subLi.appendChild(subContent);
+                subLi.appendChild(subDelete);
+                subUl.appendChild(subLi);
+            }
+
+            // Lógica do botão de Adicionar Subtarefa
+            btnAddSub.onclick = function() {
+                const subTexto = prompt("Digite a sub-tarefa:");
+                if(subTexto) {
+                    adicionarSubTarefaVisual(subTexto, false);
+                    salvarDados();
+                }
+            };
+
+            // Se vieram subtarefas do banco de dados, cria elas agora
+            if (subTarefas && subTarefas.length > 0) {
+                subTarefas.forEach(sub => {
+                    adicionarSubTarefaVisual(sub.texto, sub.concluido);
+                });
+            }
 
             adicionarEventosDeArrastar(novoLi);
             lista.appendChild(novoLi);
@@ -614,7 +635,10 @@
             const tarefasSalvas = localStorage.getItem(`checklist_tarefas_${LIST_ID}`);
             if (tarefasSalvas) {
                 const arrayTarefas = JSON.parse(tarefasSalvas);
-                arrayTarefas.forEach(tarefa => criarElementoVisual(tarefa.texto, tarefa.concluido));
+                arrayTarefas.forEach(tarefa => {
+                    // Passa o array de subtarefas também (se existir)
+                    criarElementoVisual(tarefa.texto, tarefa.concluido, tarefa.subtarefas || []);
+                });
             }
         }
 
@@ -622,7 +646,7 @@
         function adicionarNovaTarefa() {
             const texto = inputCampo.value;
             if (texto === "") { alert("Digite uma tarefa!"); inputCampo.focus(); return; }
-            criarElementoVisual(texto, false); 
+            criarElementoVisual(texto, false, []); 
             salvarDados(); 
             inputCampo.value = ''; inputCampo.focus();
         }
@@ -636,8 +660,10 @@
             e.preventDefault();
             const afterElement = getDragAfterElement(lista, e.clientY);
             const draggable = document.querySelector('.dragging');
-            if (afterElement == null) lista.appendChild(draggable);
-            else lista.insertBefore(draggable, afterElement);
+            if (draggable) { // Verifica se existe (evita erro se tentar arrastar algo inválido)
+                 if (afterElement == null) lista.appendChild(draggable);
+                 else lista.insertBefore(draggable, afterElement);
+            }
         });
         function getDragAfterElement(container, y) {
             const draggableElements = [...container.querySelectorAll('.draggable-item:not(.dragging)')];

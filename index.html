@@ -28,7 +28,7 @@
             --copy-border: #ccc;
             --backup-bg: #fff3e0;
             --backup-text: #ef6c00;
-            --subtask-bg: #f9f9f9; /* Fundo leve para subtasks */
+            --subtask-bg: #f9f9f9;
         }
 
         /* Tema Escuro */
@@ -166,28 +166,31 @@
         /* Lista Principal */
         .checklist { list-style: none; padding: 0; margin: 0; }
         
-        /* Item da Lista (Container Pai) */
         .checklist > li {
             background-color: var(--item-bg);
             color: var(--text-primary);
             border-bottom: 1px solid var(--border-color);
-            padding: 15px 10px; /* Aumentei um pouco o padding vertical */
+            padding: 15px 10px;
             display: flex;
-            flex-direction: column; /* Importante para a sublista ficar embaixo */
+            flex-direction: column;
             transition: background-color 0.2s;
         }
         .checklist > li:hover { background-color: var(--item-hover); }
         
-        /* Linha principal do item (Checkbox + Texto + Botões) */
         .main-task-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
+            display: flex; align-items: center; justify-content: space-between; width: 100%;
         }
 
-        .checklist li.dragging {
+        /* Efeito ao arrastar PAIS */
+        .checklist li.dragging-parent {
             opacity: 0.5; background-color: var(--item-hover); border: 2px dashed var(--accent-color);
+        }
+
+        /* Efeito ao arrastar FILHOS */
+        .subtask-item.dragging-child {
+            opacity: 0.6;
+            background-color: var(--border-color);
+            border: 1px dashed var(--text-secondary);
         }
         
         .drag-handle {
@@ -200,13 +203,14 @@
         label { cursor: pointer; width: 100%; transition: color 0.3s; word-break: break-word; }
         input[type="checkbox"]:checked + label { text-decoration: line-through; color: #777; }
 
-        /* --- ESTILOS DE SUB-TAREFAS (NOVO) --- */
+        /* --- SUB-TAREFAS --- */
         .subtask-container {
             list-style: none;
             padding: 0;
             margin-top: 10px;
-            margin-left: 35px; /* Indentação */
-            border-left: 2px solid var(--border-color); /* Linha guia visual */
+            margin-left: 35px;
+            border-left: 2px solid var(--border-color);
+            min-height: 5px; /* Altura mínima para permitir drop se estiver vazia */
         }
 
         .subtask-item {
@@ -217,48 +221,32 @@
             background-color: var(--subtask-bg);
             margin-bottom: 2px;
             border-radius: 0 6px 6px 0;
-            font-size: 15px; /* Um pouco menor */
+            font-size: 15px;
         }
         
         /* Botões Pequenos */
         .btn-small {
-            background-color: transparent; 
-            border: 1px solid var(--border-color); 
-            border-radius: 4px; 
-            padding: 4px 8px; 
-            margin-left: 5px; 
-            cursor: pointer; 
-            font-size: 12px; 
-            color: var(--text-secondary);
-            transition: all 0.2s;
+            background-color: transparent; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px 8px; margin-left: 5px; cursor: pointer; font-size: 12px; color: var(--text-secondary); transition: all 0.2s;
         }
         .btn-small:hover { background-color: var(--border-color); color: var(--text-primary); }
-        
         .btn-add-sub { color: var(--accent-color); border-color: var(--accent-color); }
         .btn-add-sub:hover { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
-
         .btn-delete { color: var(--danger-text); border-color: var(--danger-text); }
         .btn-delete:hover { background-color: var(--danger-text); color: white; }
 
         /* --- MODAL --- */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--modal-overlay);
-            display: none; justify-content: center; align-items: center; z-index: 1000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--modal-overlay); display: none; justify-content: center; align-items: center; z-index: 1000;
         }
         .modal-content {
-            background-color: var(--bg-container); padding: 25px; border-radius: 10px; width: 400px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: var(--text-primary);
+            background-color: var(--bg-container); padding: 25px; border-radius: 10px; width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: var(--text-primary);
         }
         .modal-header {
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;
         }
         .modal-header h2 { margin: 0; font-size: 20px; }
-        .close-modal {
-            background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary);
-        }
+        .close-modal { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
         .close-modal:hover { color: var(--text-primary); }
-        
         #listaProjetos { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; }
         #listaProjetos li { margin-bottom: 8px; }
         #listaProjetos a {
@@ -266,9 +254,7 @@
         }
         #listaProjetos a:hover { background-color: var(--item-hover); border-color: var(--accent-color); }
         #listaProjetos a.active { background-color: var(--menu-bg); border-color: var(--menu-text); font-weight: bold; }
-        
         .empty-state { text-align: center; color: var(--text-secondary); padding: 20px; font-style: italic; }
-
     </style>
 </head>
 <body>
@@ -315,7 +301,6 @@
     </div>
 
     <script>
-        // Elementos Principais
         const inputCampo = document.getElementById('novoItemInput');
         const btnAdicionar = document.getElementById('btnAdd');
         const lista = document.getElementById('listaTarefas');
@@ -323,26 +308,21 @@
         const badgeId = document.getElementById('badgeId');
         const btnNuke = document.getElementById('btnNuke');
         const btnTheme = document.getElementById('btnTheme');
-        
-        // Elementos Backup
         const btnExport = document.getElementById('btnExport');
         const btnImport = document.getElementById('btnImport');
         const fileInput = document.getElementById('fileInput');
-
-        // Elementos do Modal
         const btnMenu = document.getElementById('btnMenu');
         const modalProjetos = document.getElementById('modalProjetos');
         const btnCloseModal = document.getElementById('btnCloseModal');
         const ulProjetos = document.getElementById('listaProjetos');
 
-        // --- 0. LÓGICA DE URL ---
+        // --- 0. URL ---
         function getListId() {
             const urlParams = new URLSearchParams(window.location.search);
             let id = urlParams.get('id') || urlParams.get('lista');
             return id ? id : 'geral';
         }
         const LIST_ID = getListId();
-        
         badgeId.innerText = LIST_ID;
         document.title = `Task: ${LIST_ID.toUpperCase()}`;
 
@@ -358,29 +338,21 @@
         }
         btnTheme.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
-            if (document.body.classList.contains('dark-mode')) {
-                localStorage.setItem('task_theme_preference', 'dark');
-                btnTheme.innerText = '☀️';
-            } else {
-                localStorage.setItem('task_theme_preference', 'light');
-                btnTheme.innerText = '🌙';
-            }
+            localStorage.setItem('task_theme_preference', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+            btnTheme.innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
         });
 
-        // --- 2. PERSISTÊNCIA (AGORA RECURSIVA PARA SUBTAREFAS) ---
+        // --- 2. SALVAR DADOS (RECURSIVO) ---
         function salvarDados() {
             localStorage.setItem(`checklist_contexto_${LIST_ID}`, contextArea.value);
-            
             const tarefas = [];
-            // Seleciona APENAS os LIs diretos da lista principal para não duplicar
-            const itensLista = lista.querySelectorAll('#listaTarefas > li');
+            const itensLista = lista.querySelectorAll('#listaTarefas > li'); // Apenas os pais
 
             itensLista.forEach(li => {
                 const mainRow = li.querySelector('.main-task-row');
                 const checkbox = mainRow.querySelector('input[type="checkbox"]');
                 const label = mainRow.querySelector('label');
                 
-                // Pega as subtarefas
                 const subTarefasArr = [];
                 const subUl = li.querySelector('.subtask-container');
                 if (subUl) {
@@ -388,24 +360,15 @@
                     subItens.forEach(subLi => {
                         const subCheck = subLi.querySelector('input[type="checkbox"]');
                         const subLabel = subLi.querySelector('label');
-                        subTarefasArr.push({
-                            texto: subLabel.innerText,
-                            concluido: subCheck.checked
-                        });
+                        subTarefasArr.push({ texto: subLabel.innerText, concluido: subCheck.checked });
                     });
                 }
-
-                tarefas.push({
-                    texto: label.innerText,
-                    concluido: checkbox.checked,
-                    subtarefas: subTarefasArr // Nova estrutura
-                });
+                tarefas.push({ texto: label.innerText, concluido: checkbox.checked, subtarefas: subTarefasArr });
             });
-
             localStorage.setItem(`checklist_tarefas_${LIST_ID}`, JSON.stringify(tarefas));
         }
 
-        // --- 3. BACKUP & RESTORE ---
+        // --- 3. BACKUP ---
         btnExport.addEventListener('click', () => {
             const dadosBackup = {};
             for (let i = 0; i < localStorage.length; i++) {
@@ -422,8 +385,7 @@
             a.click();
             URL.revokeObjectURL(url);
         });
-
-        btnImport.addEventListener('click', () => { fileInput.click(); });
+        btnImport.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', (e) => {
             const arquivo = e.target.files[0];
             if (!arquivo) return;
@@ -432,9 +394,7 @@
                 try {
                     const dadosImportados = JSON.parse(evento.target.result);
                     if (confirm("Restaurar o backup vai substituir as tarefas atuais. Continuar?")) {
-                        Object.keys(dadosImportados).forEach(key => {
-                            localStorage.setItem(key, dadosImportados[key]);
-                        });
+                        Object.keys(dadosImportados).forEach(key => localStorage.setItem(key, dadosImportados[key]));
                         location.reload();
                     }
                 } catch (err) { alert("Erro ao ler backup."); }
@@ -445,14 +405,14 @@
 
         // --- 4. DELETAR LISTA ---
         btnNuke.addEventListener('click', () => {
-            if (confirm(`Apagar a lista "${LIST_ID}"? Isso não tem volta.`)) {
+            if (confirm(`Apagar a lista "${LIST_ID}"?`)) {
                 localStorage.removeItem(`checklist_contexto_${LIST_ID}`);
                 localStorage.removeItem(`checklist_tarefas_${LIST_ID}`);
                 location.reload();
             }
         });
 
-        // --- 5. SISTEMA DE MENU ---
+        // --- 5. MENU PROJETOS ---
         function abrirMenu() {
             ulProjetos.innerHTML = ''; 
             const chaves = Object.keys(localStorage);
@@ -479,7 +439,7 @@
         btnCloseModal.addEventListener('click', fecharMenu);
         modalProjetos.addEventListener('click', (e) => { if (e.target === modalProjetos) fecharMenu(); });
 
-        // --- 6. FUNÇÃO COPIAR ---
+        // --- 6. COPIAR ---
         function copiarTextoParaClipboard(texto) {
             if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(texto);
             else {
@@ -491,13 +451,12 @@
             }
         }
 
-        // --- 7. CRIAR ELEMENTO (MODIFICADO PARA SUPORTAR SUBTAREFAS) ---
+        // --- 7. CRIAR ELEMENTO PRINCIPAL ---
         function criarElementoVisual(texto, concluido = false, subTarefas = []) {
             const novoLi = document.createElement('li');
             novoLi.setAttribute('draggable', 'true');
-            novoLi.classList.add('draggable-item');
+            novoLi.classList.add('draggable-parent'); // Classe específica para pais
 
-            // --- LINHA PRINCIPAL (Main Row) ---
             const mainRow = document.createElement('div');
             mainRow.className = 'main-task-row';
 
@@ -507,171 +466,184 @@
 
             const divConteudo = document.createElement('div');
             divConteudo.className = 'task-content';
-
             const idUnico = 'tarefa_' + Date.now() + Math.random(); 
-
             const novoCheckbox = document.createElement('input');
             novoCheckbox.type = 'checkbox';
             novoCheckbox.id = idUnico;
             novoCheckbox.checked = concluido; 
             novoCheckbox.addEventListener('change', salvarDados);
-
             const novaLabel = document.createElement('label');
             novaLabel.htmlFor = idUnico;
             novaLabel.innerText = texto;
+            divConteudo.appendChild(novoCheckbox); divConteudo.appendChild(novaLabel);
 
-            divConteudo.appendChild(novoCheckbox);
-            divConteudo.appendChild(novaLabel);
-
-            // Botões de Ação
             const divBotoes = document.createElement('div');
-            divBotoes.style.display = 'flex';
-            divBotoes.style.alignItems = 'center';
+            divBotoes.style.display = 'flex'; divBotoes.style.alignItems = 'center';
 
-            // 1. Botão Adicionar Subtarefa (+)
             const btnAddSub = document.createElement('button');
-            btnAddSub.innerText = '➕';
-            btnAddSub.className = 'btn-small btn-add-sub';
-            btnAddSub.title = 'Adicionar Subtarefa';
+            btnAddSub.innerText = '➕'; btnAddSub.className = 'btn-small btn-add-sub'; btnAddSub.title = 'Adicionar Subtarefa';
             
-            // 2. Botão Copiar
             const btnCopy = document.createElement('button');
-            btnCopy.innerText = '📋';
-            btnCopy.className = 'btn-small';
-            btnCopy.title = 'Copiar';
+            btnCopy.innerText = '📋'; btnCopy.className = 'btn-small'; btnCopy.title = 'Copiar';
             btnCopy.onclick = function() {
-                copiarTextoParaClipboard(texto).then(() => {
-                    const original = btnCopy.innerText; btnCopy.innerText = '✅'; setTimeout(() => btnCopy.innerText = original, 2000);
-                });
+                copiarTextoParaClipboard(texto).then(() => { const original = btnCopy.innerText; btnCopy.innerText = '✅'; setTimeout(() => btnCopy.innerText = original, 2000); });
             };
 
-            // 3. Botão Excluir
             const btnDelete = document.createElement('button');
-            btnDelete.innerText = '❌'; 
-            btnDelete.className = 'btn-small btn-delete';
-            btnDelete.title = 'Excluir'; 
-            btnDelete.onclick = function() {
-                novoLi.remove();
-                salvarDados(); 
-            };
+            btnDelete.innerText = '❌'; btnDelete.className = 'btn-small btn-delete'; btnDelete.title = 'Excluir'; 
+            btnDelete.onclick = function() { novoLi.remove(); salvarDados(); };
 
-            divBotoes.appendChild(btnAddSub);
-            divBotoes.appendChild(btnCopy);
-            divBotoes.appendChild(btnDelete);
+            divBotoes.appendChild(btnAddSub); divBotoes.appendChild(btnCopy); divBotoes.appendChild(btnDelete);
+            mainRow.appendChild(dragHandle); mainRow.appendChild(divConteudo); mainRow.appendChild(divBotoes);
+            novoLi.appendChild(mainRow);
 
-            mainRow.appendChild(dragHandle);
-            mainRow.appendChild(divConteudo);
-            mainRow.appendChild(divBotoes);
-
-            novoLi.appendChild(mainRow); // Adiciona a linha principal ao LI
-
-            // --- CONTAINER DE SUBTAREFAS ---
+            // Container Subtarefas
             const subUl = document.createElement('ul');
             subUl.className = 'subtask-container';
             novoLi.appendChild(subUl);
 
-            // Função para criar subtarefa visualmente
+            // Adicionar eventos de drag para este container de sub-tarefas
+            adicionarEventosContainerSub(subUl);
+
             function adicionarSubTarefaVisual(subTexto, subConcluido) {
                 const subLi = document.createElement('li');
                 subLi.className = 'subtask-item';
+                subLi.setAttribute('draggable', 'true');
+                subLi.classList.add('draggable-child'); // Identificador para drag
+
+                // Handle visual pequeno
+                const subHandle = document.createElement('span');
+                subHandle.innerHTML = '&#8942;'; // 3 pontinhos
+                subHandle.style.cursor = 'grab';
+                subHandle.style.marginRight = '8px';
+                subHandle.style.color = '#ccc';
 
                 const subContent = document.createElement('div');
                 subContent.className = 'task-content';
-
                 const subId = 'sub_' + Date.now() + Math.random();
-                
                 const subCheck = document.createElement('input');
-                subCheck.type = 'checkbox';
-                subCheck.id = subId;
-                subCheck.checked = subConcluido;
-                subCheck.addEventListener('change', salvarDados);
-
+                subCheck.type = 'checkbox'; subCheck.id = subId; subCheck.checked = subConcluido; subCheck.addEventListener('change', salvarDados);
                 const subLabel = document.createElement('label');
-                subLabel.htmlFor = subId;
-                subLabel.innerText = subTexto;
-
-                subContent.appendChild(subCheck);
-                subContent.appendChild(subLabel);
+                subLabel.htmlFor = subId; subLabel.innerText = subTexto;
+                subContent.appendChild(subCheck); subContent.appendChild(subLabel);
 
                 const subDelete = document.createElement('button');
-                subDelete.innerText = 'x';
-                subDelete.className = 'btn-small btn-delete';
-                subDelete.onclick = function() {
-                    subLi.remove();
-                    salvarDados();
-                };
+                subDelete.innerText = 'x'; subDelete.className = 'btn-small btn-delete';
+                subDelete.onclick = function() { subLi.remove(); salvarDados(); };
 
+                subLi.appendChild(subHandle);
                 subLi.appendChild(subContent);
                 subLi.appendChild(subDelete);
+                
+                // Adiciona eventos de arrastar para o filho
+                adicionarEventosArrastarSub(subLi);
+                
                 subUl.appendChild(subLi);
             }
 
-            // Lógica do botão de Adicionar Subtarefa
             btnAddSub.onclick = function() {
                 const subTexto = prompt("Digite a sub-tarefa:");
-                if(subTexto) {
-                    adicionarSubTarefaVisual(subTexto, false);
-                    salvarDados();
-                }
+                if(subTexto) { adicionarSubTarefaVisual(subTexto, false); salvarDados(); }
             };
 
-            // Se vieram subtarefas do banco de dados, cria elas agora
             if (subTarefas && subTarefas.length > 0) {
-                subTarefas.forEach(sub => {
-                    adicionarSubTarefaVisual(sub.texto, sub.concluido);
-                });
+                subTarefas.forEach(sub => adicionarSubTarefaVisual(sub.texto, sub.concluido));
             }
 
-            adicionarEventosDeArrastar(novoLi);
+            // Adiciona eventos de arrastar para o PAI
+            adicionarEventosArrastarPai(novoLi);
+            
             lista.appendChild(novoLi);
         }
 
-        // --- 8. CARREGAR DADOS ---
+        // --- 8. LÓGICA DRAG & DROP PAIS ---
+        function adicionarEventosArrastarPai(item) {
+            item.addEventListener('dragstart', (e) => {
+                // Impede que arraste se estiver clicando num filho
+                if (e.target.closest('.subtask-container')) {
+                    // e.preventDefault(); // Opcional, mas o stopPropagation no filho deve bastar
+                    return;
+                }
+                e.stopPropagation();
+                item.classList.add('dragging-parent');
+            });
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging-parent');
+                salvarDados();
+            });
+        }
+
+        lista.addEventListener('dragover', e => {
+            e.preventDefault();
+            // Só aceita se estiver arrastando um PAI
+            const draggable = document.querySelector('.dragging-parent');
+            if (!draggable) return;
+
+            const afterElement = getDragAfterElement(lista, e.clientY, '.draggable-parent');
+            if (afterElement == null) lista.appendChild(draggable);
+            else lista.insertBefore(draggable, afterElement);
+        });
+
+        // --- 9. LÓGICA DRAG & DROP FILHOS (SUBTAREFAS) ---
+        function adicionarEventosArrastarSub(item) {
+            item.addEventListener('dragstart', (e) => {
+                e.stopPropagation(); // O SEGREDO: Não deixa o pai saber que está sendo arrastado
+                item.classList.add('dragging-child');
+            });
+            item.addEventListener('dragend', (e) => {
+                e.stopPropagation();
+                item.classList.remove('dragging-child');
+                salvarDados();
+            });
+        }
+
+        function adicionarEventosContainerSub(ulContainer) {
+            ulContainer.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation(); // Não deixa o evento subir para a lista principal
+                
+                const draggable = document.querySelector('.dragging-child');
+                if (!draggable) return;
+
+                // Procura a posição dentro DESTE container específico
+                const afterElement = getDragAfterElement(ulContainer, e.clientY, '.draggable-child');
+                if (afterElement == null) ulContainer.appendChild(draggable);
+                else ulContainer.insertBefore(draggable, afterElement);
+            });
+        }
+
+        // --- 10. FUNÇÃO GENÉRICA DE POSIÇÃO ---
+        // Agora aceita um seletor para saber se procuramos pais ou filhos
+        function getDragAfterElement(container, y, selector) {
+            // Pega todos os itens daquele tipo que NÃO estão sendo arrastados
+            const draggableElements = [...container.querySelectorAll(`${selector}:not(.dragging-parent):not(.dragging-child)`)];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2; 
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // --- 11. INICIALIZAÇÃO ---
         function carregarDados() {
             carregarTema();
             const contextoSalvo = localStorage.getItem(`checklist_contexto_${LIST_ID}`);
             if (contextoSalvo) contextArea.value = contextoSalvo;
-
             const tarefasSalvas = localStorage.getItem(`checklist_tarefas_${LIST_ID}`);
             if (tarefasSalvas) {
                 const arrayTarefas = JSON.parse(tarefasSalvas);
-                arrayTarefas.forEach(tarefa => {
-                    // Passa o array de subtarefas também (se existir)
-                    criarElementoVisual(tarefa.texto, tarefa.concluido, tarefa.subtarefas || []);
-                });
+                arrayTarefas.forEach(tarefa => criarElementoVisual(tarefa.texto, tarefa.concluido, tarefa.subtarefas || []));
             }
         }
-
-        // --- 9. ADICIONAR TAREFA ---
         function adicionarNovaTarefa() {
             const texto = inputCampo.value;
             if (texto === "") { alert("Digite uma tarefa!"); inputCampo.focus(); return; }
-            criarElementoVisual(texto, false, []); 
-            salvarDados(); 
-            inputCampo.value = ''; inputCampo.focus();
-        }
-
-        // --- 10. DRAG AND DROP ---
-        function adicionarEventosDeArrastar(item) {
-            item.addEventListener('dragstart', () => item.classList.add('dragging'));
-            item.addEventListener('dragend', () => { item.classList.remove('dragging'); salvarDados(); });
-        }
-        lista.addEventListener('dragover', e => {
-            e.preventDefault();
-            const afterElement = getDragAfterElement(lista, e.clientY);
-            const draggable = document.querySelector('.dragging');
-            if (draggable) { // Verifica se existe (evita erro se tentar arrastar algo inválido)
-                 if (afterElement == null) lista.appendChild(draggable);
-                 else lista.insertBefore(draggable, afterElement);
-            }
-        });
-        function getDragAfterElement(container, y) {
-            const draggableElements = [...container.querySelectorAll('.draggable-item:not(.dragging)')];
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2; 
-                return (offset < 0 && offset > closest.offset) ? { offset: offset, element: child } : closest;
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
+            criarElementoVisual(texto, false, []); salvarDados(); inputCampo.value = ''; inputCampo.focus();
         }
 
         btnAdicionar.addEventListener('click', adicionarNovaTarefa);

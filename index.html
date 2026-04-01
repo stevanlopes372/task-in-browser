@@ -474,7 +474,7 @@
             novoCheckbox.addEventListener('change', salvarDados);
             const novaLabel = document.createElement('label');
             novaLabel.htmlFor = idUnico;
-            novaLabel.innerText = texto;
+            novaLabel.innerHTML = texto;
             divConteudo.appendChild(novoCheckbox); divConteudo.appendChild(novaLabel);
 
             const divBotoes = document.createElement('div');

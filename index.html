@@ -474,7 +474,7 @@
             novoCheckbox.addEventListener('change', salvarDados);
             const novaLabel = document.createElement('label');
             novaLabel.htmlFor = idUnico;
-            novaLabel.innerText = texto;
+            novaLabel.innerHTML = texto;
             divConteudo.appendChild(novoCheckbox); divConteudo.appendChild(novaLabel);
 
             const divBotoes = document.createElement('div');
@@ -651,6 +651,45 @@
         contextArea.addEventListener('input', salvarDados);
 
         carregarDados();
+
+        // --- 12. COLAR INTELIGENTE (SMART PASTE) ---
+        function handleSmartPaste(e) {
+            // Pega o texto que o usuário selecionou com o mouse
+            const start = e.target.selectionStart;
+            const end = e.target.selectionEnd;
+            const selectedText = e.target.value.substring(start, end);
+
+            // Pega o que está na área de transferência (CTRL+C)
+            const clipboardData = (e.clipboardData || window.clipboardData).getData('text');
+            
+            // Verifica se é um link e se tem texto selecionado
+            const isLink = clipboardData.startsWith('http://') || clipboardData.startsWith('https://');
+
+            if (isLink && selectedText.length > 0) {
+                // Impede o navegador de simplesmente apagar o texto e colar o link
+                e.preventDefault(); 
+                
+                // Monta a tag HTML do link (abre em nova aba e pega a cor verde do tema)
+                const linkTag = `<a href="${clipboardData}" target="_blank" style="color: var(--accent-color); text-decoration: underline; font-weight: bold;">${selectedText}</a>`;
+                
+                // Costura o texto que vem antes, o link novo, e o texto que vem depois
+                const textBefore = e.target.value.substring(0, start);
+                const textAfter = e.target.value.substring(end);
+                
+                e.target.value = textBefore + linkTag + textAfter;
+                
+                // Reposiciona o cursor pro final do link inserido
+                e.target.selectionStart = e.target.selectionEnd = start + linkTag.length;
+
+                // Força o salvamento se for na área de contexto
+                e.target.dispatchEvent(new Event('input'));
+            }
+        }
+
+        // Adiciona a "escuta" de CTRL+V nos nossos campos de texto
+        inputCampo.addEventListener('paste', handleSmartPaste);
+        contextArea.addEventListener('paste', handleSmartPaste);
+        
     </script>
 </body>
 </html>

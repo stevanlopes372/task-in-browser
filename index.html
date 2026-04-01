@@ -512,11 +512,11 @@
                 const subLi = document.createElement('li');
                 subLi.className = 'subtask-item';
                 subLi.setAttribute('draggable', 'true');
-                subLi.classList.add('draggable-child'); // Identificador para drag
+                subLi.classList.add('draggable-child');
 
-                // Handle visual pequeno
+                // Handle visual pequeno (os pontinhos)
                 const subHandle = document.createElement('span');
-                subHandle.innerHTML = '&#8942;'; // 3 pontinhos
+                subHandle.innerHTML = '&#8942;'; 
                 subHandle.style.cursor = 'grab';
                 subHandle.style.marginRight = '8px';
                 subHandle.style.color = '#ccc';
@@ -524,21 +524,59 @@
                 const subContent = document.createElement('div');
                 subContent.className = 'task-content';
                 const subId = 'sub_' + Date.now() + Math.random();
+                
                 const subCheck = document.createElement('input');
-                subCheck.type = 'checkbox'; subCheck.id = subId; subCheck.checked = subConcluido; subCheck.addEventListener('change', salvarDados);
+                subCheck.type = 'checkbox'; 
+                subCheck.id = subId; 
+                subCheck.checked = subConcluido; 
+                subCheck.addEventListener('change', salvarDados);
+                
                 const subLabel = document.createElement('label');
-                subLabel.htmlFor = subId; subLabel.innerText = subTexto;
-                subContent.appendChild(subCheck); subContent.appendChild(subLabel);
+                subLabel.htmlFor = subId; 
+                subLabel.innerHTML = subTexto; // Mantendo o innerHTML para não quebrar os links!
+                
+                subContent.appendChild(subCheck); 
+                subContent.appendChild(subLabel);
 
+                // --- AGRUPANDO OS BOTÕES DA SUBTAREFA ---
+                const subBotoes = document.createElement('div');
+                subBotoes.style.display = 'flex';
+                subBotoes.style.alignItems = 'center';
+
+                // NOVO: Botão de Copiar da Subtarefa
+                const subCopy = document.createElement('button');
+                subCopy.innerText = '📋';
+                subCopy.className = 'btn-small';
+                subCopy.title = 'Copiar';
+                subCopy.onclick = function() {
+                    // Usamos innerText aqui para copiar só o texto, sem as tags HTML caso tenha link
+                    copiarTextoParaClipboard(subLabel.innerText).then(() => {
+                        const original = subCopy.innerText;
+                        subCopy.innerText = '✅';
+                        setTimeout(() => subCopy.innerText = original, 2000);
+                    });
+                };
+
+                // Botão de Excluir da Subtarefa
                 const subDelete = document.createElement('button');
-                subDelete.innerText = 'x'; subDelete.className = 'btn-small btn-delete';
-                subDelete.onclick = function() { subLi.remove(); salvarDados(); };
+                subDelete.innerText = 'x'; 
+                subDelete.className = 'btn-small btn-delete';
+                subDelete.title = 'Excluir';
+                subDelete.onclick = function() { 
+                    subLi.remove(); 
+                    salvarDados(); 
+                };
 
+                // Colocando os botões na caixinha deles
+                subBotoes.appendChild(subCopy);
+                subBotoes.appendChild(subDelete);
+
+                // Montando o "LEGO" final da subtarefa
                 subLi.appendChild(subHandle);
                 subLi.appendChild(subContent);
-                subLi.appendChild(subDelete);
+                subLi.appendChild(subBotoes); // Adicionamos a caixinha de botões aqui
                 
-                // Adiciona eventos de arrastar para o filho
+                // Ativa o drag and drop pro filho
                 adicionarEventosArrastarSub(subLi);
                 
                 subUl.appendChild(subLi);

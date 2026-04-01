@@ -582,10 +582,56 @@
                 subUl.appendChild(subLi);
             }
 
+            // --- NOVA LÓGICA DO BOTÃO + (INPUT INLINE) ---
             btnAddSub.onclick = function() {
-                const subTexto = prompt("Digite a sub-tarefa:");
-                if(subTexto) { adicionarSubTarefaVisual(subTexto, false); salvarDados(); }
+                // Se já tiver um campinho aberto nessa subtarefa, não abre outro
+                if (subUl.querySelector('.inline-sub-input')) return;
+
+                // Cria um campo de texto bonitão ali na hora
+                const inlineInput = document.createElement('input');
+                inlineInput.type = 'text';
+                inlineInput.className = 'inline-sub-input';
+                inlineInput.placeholder = 'Digite a subtarefa, cole o link e aperte Enter...';
+                
+                // Estilo do campinho injetado direto
+                inlineInput.style.width = 'calc(100% - 40px)'; // Dá um espacinho da borda
+                inlineInput.style.padding = '8px';
+                inlineInput.style.marginLeft = '35px';
+                inlineInput.style.marginBottom = '5px';
+                inlineInput.style.borderRadius = '4px';
+                inlineInput.style.border = '1px solid var(--accent-color)';
+                inlineInput.style.backgroundColor = 'var(--input-bg)';
+                inlineInput.style.color = 'var(--text-primary)';
+                inlineInput.style.outline = 'none';
+
+                // ⚡ A MÁGICA ACONTECE AQUI: Ligamos nosso Smart Paste nesse novo campo!
+                inlineInput.addEventListener('paste', handleSmartPaste);
+
+                // O que acontece quando apertar Enter
+                inlineInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const subTexto = inlineInput.value;
+                        if (subTexto.trim() !== '') {
+                            // Cria a subtarefa visual com o texto/link
+                            adicionarSubTarefaVisual(subTexto, false);
+                            salvarDados();
+                        }
+                        inlineInput.remove(); // Some com o campinho
+                    }
+                });
+
+                // Se o usuário clicar fora (desistir), o campinho some sozinho
+                inlineInput.addEventListener('blur', function() {
+                    if (inlineInput.value.trim() === '') {
+                        inlineInput.remove();
+                    }
+                });
+
+                // Coloca o campo na tela e já joga o cursor piscando lá dentro
+                subUl.appendChild(inlineInput);
+                inlineInput.focus();
             };
+
 
             if (subTarefas && subTarefas.length > 0) {
                 subTarefas.forEach(sub => adicionarSubTarefaVisual(sub.texto, sub.concluido));

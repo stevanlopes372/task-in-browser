@@ -343,7 +343,7 @@
             btnTheme.innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
         });
 
-        // --- 2. SALVAR DADOS (RECURSIVO) ---
+// --- 2. PERSISTÊNCIA (AGORA RECURSIVA PARA SUBTAREFAS E ACEITANDO HTML) ---
         function salvarDados() {
             localStorage.setItem(`checklist_contexto_${LIST_ID}`, contextArea.value);
             const tarefas = [];
@@ -352,7 +352,7 @@
             itensLista.forEach(li => {
                 const mainRow = li.querySelector('.main-task-row');
                 const checkbox = mainRow.querySelector('input[type="checkbox"]');
-                const label = mainRow.querySelector('label');
+                const label = mainRow.querySelector('label'); 
                 
                 const subTarefasArr = [];
                 const subUl = li.querySelector('.subtask-container');
@@ -361,10 +361,12 @@
                     subItens.forEach(subLi => {
                         const subCheck = subLi.querySelector('input[type="checkbox"]');
                         const subLabel = subLi.querySelector('label');
-                        subTarefasArr.push({ texto: subLabel.innerText, concluido: subCheck.checked });
+                        
+                        subTarefasArr.push({ texto: subLabel.innerHTML, concluido: subCheck.checked });
                     });
                 }
-                tarefas.push({ texto: label.innerText, concluido: checkbox.checked, subtarefas: subTarefasArr });
+                
+                tarefas.push({ texto: label.innerHTML, concluido: checkbox.checked, subtarefas: subTarefasArr });
             });
             localStorage.setItem(`checklist_tarefas_${LIST_ID}`, JSON.stringify(tarefas));
         }
